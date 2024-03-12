@@ -29,13 +29,12 @@ public class bookOrderSystem {
         } else if (input == 3) {
             bookstoreInterface();
         } else if (input == 4) {
-            systemDate()
-        } else if (input == 5){
+            systemDate();
+        } else if (input == 5) {
             goBack();
-        }
-        else {
+        } else {
             System.out.println("[ERROR] Invalid input");
             start();
         }
-    }    
-}    
+    }
+}
