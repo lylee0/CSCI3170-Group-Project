@@ -1,9 +1,14 @@
+//package Project.codes;
 import java.util.Scanner;
 
-public class bookOrderSystem {
-    private Scanner scanner;
+public class Main{
+    public static void main(String[] args){
+        scanner = new Scanner(System.in);
+        Integer input = getInput(scanner);
+        run(input, scanner);
+    }
 
-    public void initInfo() {
+    public static getInput(Scanner scanner){
         System.out.println("The System Date is now: ");
         System.out.println("<This is the Book Ordering System.>");
         System.out.println("-----------------------------------------");
@@ -12,29 +17,30 @@ public class bookOrderSystem {
         System.out.println("3. Bookstore interface.");
         System.out.println("4. Show System Date.");
         System.out.println("5. Quit the system......");
-    }
-
-    public void start() {
         System.out.println("Please enter enter your choice??..");
-        scanner = new Scanner(System.in);
+        
         Integer input = Integer.parseInt(scanner.next());
-        runMethod(input);
+        return input;
     }
 
-    private void runMethod(Integer input) {
+    public static void run(Integer input, Scanner scanner){
         if (input == 1) {
-            systemInterface();
+            SystemInterface sys = new SystemInterface();
         } else if (input == 2) {
-            customerInterface();
+            Customer cus = new Customer();
         } else if (input == 3) {
-            bookstoreInterface();
+            Bookstore bks = new Bookstore();
         } else if (input == 4) {
             systemDate();
-        } else if (input == 5) {
-            goBack();
-        } else {
+        } else if (input == 5){
+            scanner.close();
+            System.exit(1);
+        }
+        else {
             System.out.println("[ERROR] Invalid input");
-            start();
+            input = getInput(scanner);
+            run(input, scanner);
         }
     }
+
 }
