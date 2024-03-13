@@ -8,7 +8,7 @@ public class Main{
         run(input, scanner);
     }
 
-    public static getInput(Scanner scanner){
+    public getInput(Scanner scanner){
         System.out.println("The System Date is now: ");
         System.out.println("<This is the Book Ordering System.>");
         System.out.println("-----------------------------------------");
@@ -23,7 +23,7 @@ public class Main{
         return input;
     }
 
-    public static void run(Integer input, Scanner scanner){
+    public void run(Integer input, Scanner scanner){
         if (input == 1) {
             SystemInterface sys = new SystemInterface();
         } else if (input == 2) {
