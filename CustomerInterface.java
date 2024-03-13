@@ -13,7 +13,7 @@ public class CustomerInterface{
 
     public void printOptions(){
         System.out.println("<This is the customer interface.>");
-        System.out.println("-------------------------------");
+        System.out.println("---------------------------------");
         System.out.println("1. Book Search.");
         System.out.println("2. Order Creation.");
         System.out.println("3. Order Altering.");
