@@ -22,7 +22,7 @@ public class CustomerInterface{
     }
 
     public getInput(Scanner scanner){
-        System.out.println("Please enter your choice??..");
+        System.out.println("\nWhat is your choice??..");
         Integer input = Integer.parseInt(scanner.next());
         return input;
     }
