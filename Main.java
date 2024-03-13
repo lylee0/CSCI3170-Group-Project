@@ -36,7 +36,12 @@ public class Main {
 
     class BookstoreInterface {
         void print_menu() {
-
+            System.out.println("<This is the bookstore interface.>");
+            System.out.println("----------------------------------");
+            System.out.println("1. Order Update.");
+            System.out.println("2. Order Query.");
+            System.out.println("3. N most Popular Book Query.");
+            System.out.println("4. Back to main menu.");
         }
 
         void loop() {
