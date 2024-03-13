@@ -3,22 +3,21 @@ import java.util.Scanner;
 
 public class Main{
     public static void main(String[] args){
+        System.out.println("The System Date is now: ");
+        System.out.println("<This is the Book Ordering System.>");
+        System.out.println("-----------------------------------");
+        System.out.println("1. System interface.");
+        System.out.println("2. Customer interface.");
+        System.out.println("3. Bookstore interface.");
+        System.out.println("4. Show System Date.");
+        System.out.println("5. Quit the system......");
         scanner = new Scanner(System.in);
         Integer input = getInput(scanner);
         run(input, scanner);
     }
 
     public getInput(Scanner scanner){
-        System.out.println("The System Date is now: ");
-        System.out.println("<This is the Book Ordering System.>");
-        System.out.println("-----------------------------------------");
-        System.out.println("1. System interface.");
-        System.out.println("2. Customer interface.");
-        System.out.println("3. Bookstore interface.");
-        System.out.println("4. Show System Date.");
-        System.out.println("5. Quit the system......");
         System.out.println("Please enter your choice??..");
-        
         Integer input = Integer.parseInt(scanner.next());
         return input;
     }
@@ -37,7 +36,7 @@ public class Main{
             System.exit(1);
         }
         else {
-            System.out.println("[ERROR] Invalid input");
+            System.out.println("Invalid input, please try again.");
             input = getInput(scanner);
             run(input, scanner);
         }
