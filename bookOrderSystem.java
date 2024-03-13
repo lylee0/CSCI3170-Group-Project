@@ -26,9 +26,9 @@ public class Main{
         if (input == 1) {
             SystemInterface sys = new SystemInterface();
         } else if (input == 2) {
-            Customer cus = new Customer();
+            CustomerInterface cus = new CustomerInterface();
         } else if (input == 3) {
-            Bookstore bks = new Bookstore();
+            BookstoreInterface bks = new BookstoreInterface();
         } else if (input == 4) {
             systemDate();
         } else if (input == 5){
