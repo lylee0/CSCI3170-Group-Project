@@ -17,7 +17,7 @@ public class Main{
         System.out.println("3. Bookstore interface.");
         System.out.println("4. Show System Date.");
         System.out.println("5. Quit the system......");
-        System.out.println("Please enter enter your choice??..");
+        System.out.println("Please enter your choice??..");
         
         Integer input = Integer.parseInt(scanner.next());
         return input;
