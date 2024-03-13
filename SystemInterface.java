@@ -48,17 +48,21 @@ public class SystemInterface{
 
     private void createTable(){
         // to be done
+        start();
     }
 
     private void deleteTable(){
         // to be done
+        start();
     }
 
     private void insertData(){
         // to be done
+        start();
     }
 
     private void setDate(){
         // to be done
+        start();
     }
 }
