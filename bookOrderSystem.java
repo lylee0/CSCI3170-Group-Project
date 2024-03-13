@@ -17,7 +17,7 @@ public class Main{
     }
 
     public getInput(Scanner scanner){
-        System.out.println("Please enter your choice??..");
+        System.out.println("\nPlease enter your choice??..");
         Integer input = Integer.parseInt(scanner.next());
         return input;
     }
