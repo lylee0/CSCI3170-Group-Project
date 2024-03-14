@@ -1,8 +1,10 @@
-import java.util.*;
 import java.sql.*;
+import java.time.*;
+import java.util.*;
 
 public class Main {
     Connection conn;
+    int system_date = 0;
 
     class SystemInterface {
         /* Create all tables regardless of errors. */
@@ -168,6 +170,35 @@ public class Main {
         }
     }
 
+    static String date_int_to_str(int date_int) {
+        String year = String.format("%04d", date_int / 10000);
+        String month = String.format("%02d", date_int % 10000 / 100);
+        String day = String.format("%02d", date_int % 100);
+
+        return String.join("-", year, month, day);
+    }
+
+    /* Assume the input string is valid. */
+    static int date_str_to_int(String date_str) {
+        return Integer.parseInt(date_str.replace("-", ""));
+    }
+
+    /* Verify whether the date string is valid. */
+    static boolean verify_date_str(String date_str) {
+        try {
+            String[] parts = date_str.split("-");
+            int year = Integer.parseInt(parts[0]);
+            int month = Integer.parseInt(parts[1]);
+            int day = Integer.parseInt(parts[2]);
+
+            LocalDate.of(year, month, day);
+        } catch (Exception e) {
+            return false;
+        }
+
+        return true;
+    }
+
     static int get_user_choice(int n_choices) {
         // construct the list of choices
         List<String> choices = new ArrayList<>();
@@ -248,7 +279,7 @@ public class Main {
     }
 
     void show_system_date() {
-        System.out.println("\nThe system date is now: ");
+        System.out.println("\nThe system date is now: " + date_int_to_str(system_date));
     }
 
     void print_menu() {
@@ -275,9 +306,8 @@ public class Main {
             if (choice == 1) new SystemInterface().loop();
             else if (choice == 2) new CustomerInterface().loop();
             else if (choice == 3) new BookstoreInterface().loop();
-            else if (choice == 4) {
-                // ...
-            } else break;
+            else if (choice == 4) show_system_date();
+            else break;
         }
 
         try {
