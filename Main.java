@@ -3,49 +3,94 @@ import java.util.*;
 public class Main {
     class SystemInterface {
         void print_menu() {
-            System.out.println("<This is the system interface.>");
+            System.out.println("<This is the system interface>");
             System.out.println("-------------------------------");
-            System.out.println("1. Create Table.");
-            System.out.println("2. Delete Table.");
-            System.out.println("3. Insert Data.");
-            System.out.println("4. Set System Date.");
-            System.out.println("5. Back to main menu.");
-            System.out.println("Please enter your choice??..");
+            System.out.println("1. Create table");
+            System.out.println("2. Delete table");
+            System.out.println("3. Insert data");
+            System.out.println("4. Set system date");
+            System.out.println("5. Back to main menu");
+            System.out.print("\nPlease enter your choice??..");
         }
 
         void loop() {
-            // ...
+            while (true) {
+                print_menu();
+                int choice = get_user_choice(5);
+
+                if (choice == 1) {
+                    // ...
+                } else if (choice == 2) {
+                    // ...
+                } else if (choice == 3) {
+                    // ...
+                } else if (choice == 4) {
+                    // ...
+                } else {
+                    break;
+                }
+            }
         }
     }
 
     class CustomerInterface {
         void print_menu() {
-            System.out.println("<This is the customer interface.>");
+            System.out.println("<This is the customer interface>");
             System.out.println("---------------------------------");
-            System.out.println("1. Book Search.");
-            System.out.println("2. Order Creation.");
-            System.out.println("3. Order Altering.");
-            System.out.println("4. Order Query.");
-            System.out.println("5. Back to main menu.");
+            System.out.println("1. Book search");
+            System.out.println("2. Order creation");
+            System.out.println("3. Order altering");
+            System.out.println("4. Order query");
+            System.out.println("5. Back to main menu");
+            System.out.print("\nPlease enter your choice??..");
         }
 
         void loop() {
-            // ...
+            while (true) {
+                print_menu();
+                int choice = get_user_choice(5);
+
+                if (choice == 1) {
+                    // ...
+                } else if (choice == 2) {
+                    // ...
+                } else if (choice == 3) {
+                    // ...
+                } else if (choice == 4) {
+                    // ...
+                } else {
+                    break;
+                }
+            }
         }
     }
 
     class BookstoreInterface {
         void print_menu() {
-            System.out.println("<This is the bookstore interface.>");
+            System.out.println("<This is the bookstore interface>");
             System.out.println("----------------------------------");
-            System.out.println("1. Order Update.");
-            System.out.println("2. Order Query.");
-            System.out.println("3. N most Popular Book Query.");
-            System.out.println("4. Back to main menu.");
+            System.out.println("1. Order update");
+            System.out.println("2. Order query");
+            System.out.println("3. N most popular book query");
+            System.out.println("4. Back to main menu");
+            System.out.print("\nPlease enter your choice??..");
         }
 
         void loop() {
-            // ...
+            while (true) {
+                print_menu();
+                int choice = get_user_choice(4);
+
+                if (choice == 1) {
+                    // ...
+                } else if (choice == 2) {
+                    // ...
+                } else if (choice == 3) {
+                    // ...
+                } else {
+                    break;
+                }
+            }
         }
     }
 
@@ -67,15 +112,15 @@ public class Main {
     }
 
     void print_menu() {
-        System.out.println("The System Date is now: ");
-        System.out.println("<This is the Book Ordering System.>");
+        System.out.println("The system date is now: ");
+        System.out.println("<This is the Book Ordering System>");
         System.out.println("-----------------------------------");
         System.out.println("1. System interface");
         System.out.println("2. Customer interface");
         System.out.println("3. Bookstore interface");
-        System.out.println("4. Show System Date");
+        System.out.println("4. Show system date");
         System.out.println("5. Quit the system......");
-        System.out.print("\nPlease enter enter your choice??..");
+        System.out.print("\nPlease enter your choice??..");
     }
 
     public void loop() {
