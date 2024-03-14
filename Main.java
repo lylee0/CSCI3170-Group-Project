@@ -1,6 +1,9 @@
 import java.util.*;
+import java.sql.*;
 
 public class Main {
+    Connection conn;
+
     class SystemInterface {
         void print_menu() {
             System.out.println("<This is the system interface>");
@@ -111,6 +114,26 @@ public class Main {
         return Integer.parseInt(input);
     }
 
+    boolean connect_database() {
+        // Load the JDBC driver for Oracle DBMS
+        try {
+            Class.forName("oracle.jdbc.driver.OracleDriver");
+        } catch (Exception e) {
+            System.err.println("Unable to load the driver class: " + e.getMessage());  // e.g., "Unable to load the driver class: com.mysql.jdbc.Driver"
+            return false;
+        }
+
+        // Establish a connection
+        try {
+            conn = DriverManager.getConnection("jdbc:oracle:thin:@//db18.cse.cuhk.edu.hk:1521/oradb.cse.cuhk.edu.hk?autoReconnect=true&useSSL=false", "h030", "Kapaibco");
+        } catch (Exception e) {
+            System.err.println("Unable to connect to the database: " + e.getMessage());
+            return false;
+        }
+
+        return true;
+    }
+
     void print_menu() {
         System.out.println("The system date is now: ");
         System.out.println("<This is the Book Ordering System>");
@@ -123,7 +146,12 @@ public class Main {
         System.out.print("\nPlease enter your choice??..");
     }
 
+    // Set 'public', since this is theoretically the only entrance to the entire application, apart from main()
     public void loop() {
+        if (!connect_database()) {
+            return;  // Failed
+        }
+
         while (true) {
             print_menu();
             int choice = get_user_choice(5);
