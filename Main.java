@@ -5,9 +5,9 @@ public class Main {
     Connection conn;
 
     class SystemInterface {
-        /* Create tables regardless of errors. */
+        /* Create all tables regardless of errors. */
         void create_table() {
-            Map<String, String> table_definitions = new HashMap<>();
+            Map<String, String> table_definitions = new LinkedHashMap<>();
             table_definitions.put("book", """
                     CREATE TABLE book
                     (
@@ -67,8 +67,15 @@ public class Main {
             });
         }
 
+        /* Delete all tables regardless of errors. */
         void delete_table() {
-            // ...
+            List<String> table_names = List.of("book", "customer", "orders", "ordering", "book_author");
+
+            for (String table_name : table_names) {
+                String sql_statement = String.format("DROP TABLE %s CASCADE CONSTRAINTS", table_name);
+                if (execute_update(sql_statement)) System.out.printf("Table '%s' has been deleted.\n", table_name);
+                else System.out.printf("Failed to delete table '%s'.\n", table_name);
+            }
         }
 
         void insert_data() {
@@ -80,7 +87,7 @@ public class Main {
         }
 
         void print_menu() {
-            System.out.println("<This is the system interface>");
+            System.out.println("\n<This is the system interface>");
             System.out.println("-------------------------------");
             System.out.println("1. Create table");
             System.out.println("2. Delete table");
@@ -106,7 +113,7 @@ public class Main {
 
     class CustomerInterface {
         void print_menu() {
-            System.out.println("<This is the customer interface>");
+            System.out.println("\n<This is the customer interface>");
             System.out.println("---------------------------------");
             System.out.println("1. Book search");
             System.out.println("2. Order creation");
@@ -136,7 +143,7 @@ public class Main {
 
     class BookstoreInterface {
         void print_menu() {
-            System.out.println("<This is the bookstore interface>");
+            System.out.println("\n<This is the bookstore interface>");
             System.out.println("----------------------------------");
             System.out.println("1. Order update");
             System.out.println("2. Order query");
@@ -166,7 +173,6 @@ public class Main {
         List<String> choices = new ArrayList<>();
         for (int i = 1; i <= n_choices; i++)
             choices.add(Integer.toString(i));
-
 
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
@@ -215,7 +221,6 @@ public class Main {
         Statement stmt = create_statement();
         if (stmt == null) return false;  // Failed
 
-
         try {
             stmt.executeUpdate(sql_statement);
         } catch (Exception e) {
@@ -232,7 +237,6 @@ public class Main {
         Statement stmt = create_statement();
         if (stmt == null) return null;  // Failed
 
-
         try {
             rs = stmt.executeQuery(sql_statement);
         } catch (Exception e) {
@@ -243,9 +247,12 @@ public class Main {
         return rs;
     }
 
+    void show_system_date() {
+        System.out.println("\nThe system date is now: ");
+    }
+
     void print_menu() {
-        System.out.println("The system date is now: ");
-        System.out.println("<This is the Book Ordering System>");
+        System.out.println("\n<This is the Book Ordering System>");
         System.out.println("-----------------------------------");
         System.out.println("1. System interface");
         System.out.println("2. Customer interface");
@@ -259,6 +266,7 @@ public class Main {
     public void loop() {
         if (!connect_database()) return;  // Failed
 
+        show_system_date();
 
         while (true) {
             print_menu();
@@ -270,7 +278,6 @@ public class Main {
             else if (choice == 4) {
                 // ...
             } else break;
-
         }
 
         try {
