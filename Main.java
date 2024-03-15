@@ -6,6 +6,35 @@ public class Main {
     Connection conn;
     int system_date = 0;
 
+    class Query {
+        Statement stmt;
+        ResultSet rs;
+
+        ResultSet execute_query(String sql_statement) {
+            try {
+                // Create a statement object
+                Statement stmt = conn.createStatement();
+
+                // Execute the update statement
+                rs = stmt.executeQuery(sql_statement);
+            } catch (Exception e) {
+                System.err.println("SQL query statement execution failed: " + e.getMessage());
+                return null;
+            }
+
+            return rs;
+        }
+
+        void close() {
+            try {
+                rs.close();
+                stmt.close();
+            } catch (Exception e) {
+                System.err.println("Failed to close the database connection: " + e.getMessage());
+            }
+        }
+    }
+
     class SystemInterface {
         /* Create all tables regardless of errors. */
         void create_table() {
@@ -191,6 +220,7 @@ public class Main {
             int month = Integer.parseInt(parts[1]);
             int day = Integer.parseInt(parts[2]);
 
+            // noinspection ResultOfMethodCallIgnored
             LocalDate.of(year, month, day);
         } catch (Exception e) {
             return false;
@@ -220,7 +250,7 @@ public class Main {
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
         } catch (Exception e) {
-            System.err.println("Unable to load the driver class: " + e.getMessage());  // e.g., "Unable to load the driver class: com.mysql.jdbc.Driver"
+            System.err.println("Failed to load the driver class: " + e.getMessage());  // e.g., "Failed to load the driver class: com.mysql.jdbc.Driver"
             return false;
         }
 
@@ -228,31 +258,19 @@ public class Main {
         try {
             conn = DriverManager.getConnection("jdbc:oracle:thin:@//db18.cse.cuhk.edu.hk:1521/oradb.cse.cuhk.edu.hk", "h030", "Kapaibco");  // 'user', 'password'
         } catch (Exception e) {
-            System.err.println("Unable to connect to the database: " + e.getMessage());
+            System.err.println("Failed to connect to the database: " + e.getMessage());
             return false;
         }
 
         return true;
     }
 
-    Statement create_statement() {
-        Statement stmt;
-
-        try {
-            stmt = conn.createStatement();
-        } catch (Exception e) {
-            System.err.println("Unable to create a statement: " + e.getMessage());
-            return null;
-        }
-
-        return stmt;
-    }
-
     boolean execute_update(String sql_statement) {
-        Statement stmt = create_statement();
-        if (stmt == null) return false;  // Failed
-
         try {
+            // Create a statement object
+            Statement stmt = conn.createStatement();
+
+            // Execute the update statement
             stmt.executeUpdate(sql_statement);
         } catch (Exception e) {
             // System.err.println("SQL update statement execution failed: " + e.getMessage());
@@ -260,22 +278,6 @@ public class Main {
         }
 
         return true;
-    }
-
-    ResultSet execute_query(String sql_statement) {
-        ResultSet rs;
-
-        Statement stmt = create_statement();
-        if (stmt == null) return null;  // Failed
-
-        try {
-            rs = stmt.executeQuery(sql_statement);
-        } catch (Exception e) {
-            System.err.println("SQL query statement execution failed: " + e.getMessage());
-            return null;
-        }
-
-        return rs;
     }
 
     void show_system_date() {
@@ -313,7 +315,7 @@ public class Main {
         try {
             conn.close();
         } catch (Exception e) {
-            System.err.println("Unable to close the database connection: " + e.getMessage());
+            System.err.println("Failed to close the database connection: " + e.getMessage());
         }
     }
 
