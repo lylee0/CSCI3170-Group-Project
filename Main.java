@@ -6,23 +6,21 @@ public class Main {
     Connection conn;
     int system_date = 0;
 
-    class Query {
+    class ExecuteQuery {
         Statement stmt;
         ResultSet rs;
 
-        ResultSet execute_query(String sql_statement) {
+        ExecuteQuery(String sql_statement) {
             try {
                 // Create a statement object
-                Statement stmt = conn.createStatement();
+                stmt = conn.createStatement();
 
                 // Execute the update statement
                 rs = stmt.executeQuery(sql_statement);
             } catch (Exception e) {
-                System.err.println("SQL query statement execution failed: " + e.getMessage());
-                return null;
+                // System.err.println("SQL query statement execution failed: " + e.getMessage());
+                rs = null;
             }
-
-            return rs;
         }
 
         void close() {
@@ -30,7 +28,7 @@ public class Main {
                 rs.close();
                 stmt.close();
             } catch (Exception e) {
-                System.err.println("Failed to close the database connection: " + e.getMessage());
+                System.err.println("Failed to close resources: " + e.getMessage());
             }
         }
     }
@@ -114,7 +112,34 @@ public class Main {
         }
 
         void set_system_date() {
-            // ...
+            System.out.print("Please input the date (YYYYMMDD): ");
+
+            Scanner scanner = new Scanner(System.in);
+            String input = scanner.nextLine();
+            while (!verify_date_str(input)) {
+                System.out.print("Invalid input. Please try again: ");
+                input = scanner.nextLine();
+            }
+
+            // Update system date
+            system_date = date_str_to_int(input);
+
+            // Get latest date in orders
+            int latest_order_date = 0;
+            try {
+                ExecuteQuery query = new ExecuteQuery("SELECT MAX(o_date) FROM orders");
+                if (query.rs.next())
+                    latest_order_date = query.rs.getInt(1);
+                query.close();
+
+                // Print the date only if query is successful
+                System.out.println("Latest date in orders: " + date_int_to_str(latest_order_date));
+            } catch (Exception e) {
+                System.err.println("Failed to get latest order date: " + e.getMessage());
+            }
+
+            // Print current system date
+            System.out.println("Today is " + date_int_to_str(system_date));
         }
 
         void print_menu() {
@@ -215,10 +240,10 @@ public class Main {
     /* Verify whether the date string is valid. */
     static boolean verify_date_str(String date_str) {
         try {
-            String[] parts = date_str.split("-");
-            int year = Integer.parseInt(parts[0]);
-            int month = Integer.parseInt(parts[1]);
-            int day = Integer.parseInt(parts[2]);
+            date_str = date_str.replace("-", "");
+            int year = Integer.parseInt(date_str.substring(0, 4));
+            int month = Integer.parseInt(date_str.substring(4, 6));
+            int day = Integer.parseInt(date_str.substring(6));
 
             // noinspection ResultOfMethodCallIgnored
             LocalDate.of(year, month, day);
