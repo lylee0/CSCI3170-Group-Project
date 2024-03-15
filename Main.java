@@ -198,10 +198,10 @@ public class Main {
             system_date = date_str_to_int(input);
 
             // Get latest date in orders
-            int latest_order_date = 0;
             try {
                 ExecuteQuery query = new ExecuteQuery("SELECT MAX(o_date) FROM orders");
-                if (query.rs.next()) latest_order_date = query.rs.getInt(1);
+                query.rs.next();  // Move the cursor to the 1st row of the result set
+                int latest_order_date = query.rs.getInt(1);  // 0 if the table is empty
                 query.close();
 
                 // Print the date only if query is successful
