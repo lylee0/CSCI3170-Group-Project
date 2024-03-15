@@ -1,3 +1,4 @@
+import java.io.*;
 import java.sql.*;
 import java.time.*;
 import java.util.*;
@@ -34,6 +35,8 @@ public class Main {
     }
 
     class SystemInterface {
+        static String[] table_names = {"book", "customer", "orders", "ordering", "book_author"};
+
         /* Create all tables regardless of errors. */
         void create_table() {
             Map<String, String> table_definitions = new LinkedHashMap<>();
@@ -98,8 +101,6 @@ public class Main {
 
         /* Delete all tables regardless of errors. */
         void delete_table() {
-            List<String> table_names = List.of("book", "customer", "orders", "ordering", "book_author");
-
             for (String table_name : table_names) {
                 String sql_statement = String.format("DROP TABLE %s CASCADE CONSTRAINTS", table_name);
                 if (execute_update(sql_statement)) System.out.printf("Table '%s' has been deleted.\n", table_name);
@@ -108,7 +109,79 @@ public class Main {
         }
 
         void insert_data() {
-            // ...
+            List<File> data_files = new ArrayList<>();
+
+            System.out.println("Please enter the folder path:");
+
+            // Check if the directory is appropriate
+            Scanner scanner = new Scanner(System.in);
+            String input = scanner.nextLine();
+            try {
+                String directory = input;
+                for (String table_name : table_names) {
+                    String filename = table_name + ".txt";
+                    data_files.add(new File(directory, filename));
+
+                    // Check whether the latest added file exists
+                    if (!data_files.get(data_files.size() - 1).exists())
+                        throw new Exception(String.format("'%s' does not exist in the directory.", filename));
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to get data: " + e.getMessage());
+                return;
+            }
+
+            // Define the format specifiers for the tuple of tables
+            String[] tuple_formats = {"(%s, '%s', %s, %s)",  // book
+                    "('%s', '%s', '%s', %s)",  // customer
+                    "(%s, %s, '%s', %s, '%s')",  // orders
+                    "(%s, %s, %s)",  // ordering
+                    "(%s, '%s')",  // book_author
+            };
+
+            // Start to insert data
+            System.out.println("Processing...");
+            try {
+                for (int i = 0; i < table_names.length; i++) {
+                    BufferedReader reader = new BufferedReader(new FileReader(data_files.get(i)));
+
+                    // Read line by line until EOF
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        String[] parts = line.split("\\|");
+
+                        // Format input data according to the specific table
+                        if (i == 0) {
+                            // book (isbn, title, unit_price, no_of_copies)
+                            parts[0] = parts[0].replace("-", "");
+                        } else if (i == 1) {
+                            // customer (customer_id, name, shipping_address, credit_card_no)
+                            parts[3] = parts[3].replace("-", "");
+                        } else if (i == 2) {
+                            // orders (order_id, o_date, shipping_status, charge, customer_id)
+                            parts[1] = Integer.toString(date_str_to_int(parts[1]));
+                        } else if (i == 3) {
+                            // ordering (order_id, isbn, quantity)
+                            parts[1] = parts[1].replace("-", "");
+                        } else if (i == 4) {
+                            // book_author (isbn, author_name)
+                            parts[0] = parts[0].replace("-", "");
+                        }
+
+                        // Construct the SQL update statement
+                        String tuple_str = String.format(tuple_formats[i], (Object[]) parts);
+                        String sql_statement = String.format("INSERT INTO %s VALUES ", table_names[i]) + tuple_str;
+
+                        // Execute the statement
+                        String stmt_msg = String.format("%s %s", table_names[i], tuple_str);
+                        if (execute_update(sql_statement)) System.out.println("Inserted: " + stmt_msg);
+                        else throw new Exception(stmt_msg);
+                    }
+                }
+                System.out.println("All data loaded!");
+            } catch (Exception e) {
+                System.err.println("Failed to insert data: " + e.getMessage());
+            }
         }
 
         void set_system_date() {
@@ -128,8 +201,7 @@ public class Main {
             int latest_order_date = 0;
             try {
                 ExecuteQuery query = new ExecuteQuery("SELECT MAX(o_date) FROM orders");
-                if (query.rs.next())
-                    latest_order_date = query.rs.getInt(1);
+                if (query.rs.next()) latest_order_date = query.rs.getInt(1);
                 query.close();
 
                 // Print the date only if query is successful
@@ -290,6 +362,7 @@ public class Main {
         return true;
     }
 
+    /* Return 'true' if successful, else 'false'. */
     boolean execute_update(String sql_statement) {
         try {
             // Create a statement object
