@@ -3,12 +3,12 @@
 
 Checklist:
 - [ ] Main menu
-    - [ ] System Interface
-        - [ ] Create Table
-        - [ ] Delete Table
-        - [ ] Insert Data
-        - [ ] Set System Date
-        - [ ] Back to main menu
+    - [x] System Interface
+        - [x] Create Table
+        - [x] Delete Table
+        - [x] Insert Data
+        - [x] Set System Date
+        - [x] Back to main menu
     - [ ] Customer Interface
         - [ ] Book Search
         - [ ] Order Creation
