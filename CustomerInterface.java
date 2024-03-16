@@ -30,8 +30,8 @@ class CustomerInterface extends Main {
         print_menu(book_search_menu);
         int choice = get_user_choice(4);
 
-        String where_stmt;
-        String order_stmt = "";  // For setting priority for exact matches
+        String where_stmt_general;
+        String where_stmt_exact_match = null;  // For displaying exact matches of 'title' and 'author_name' first
 
         if (choice == 1) {
             // Query by ISBN
@@ -40,7 +40,7 @@ class CustomerInterface extends Main {
             Scanner scanner = new Scanner(System.in);
             String isbn = scanner.nextLine().replace("-", "");
 
-            where_stmt = String.format("WHERE (b.isbn = ba.isbn) and (b.isbn = %s)", isbn);
+            where_stmt_general = String.format("WHERE (b.isbn = ba.isbn) and (b.isbn = %s)", isbn);
         } else if (choice == 2) {
             // Query by book title
             System.out.print("Input the book title (wild cards '%' and '_' are supported): ");
@@ -48,15 +48,14 @@ class CustomerInterface extends Main {
             Scanner scanner = new Scanner(System.in);
             String title = scanner.nextLine();
 
-            // Construct exact match pattern
-            if (title.substring(1, title.length() - 1).indexOf('%') == -1)
-                // '%' does not exist in the middle of the input
-                // @formatter:off
-                order_stmt = String.format("CASE WHEN title LIKE '%s' THEN 0 ELSE 1 END,",
-                        title.replace("%", ""));
-                // @formatter:on
+            where_stmt_general = String.format("WHERE (b.isbn = ba.isbn) and (title LIKE '%s')", title);
 
-            where_stmt = String.format("WHERE (b.isbn = ba.isbn) and (title LIKE '%s')", title);
+            // Construct query statement for exact match
+            if (title.substring(1, title.length() - 1).indexOf('%') == -1) {
+                // '%' does not exist in the middle of the input
+                title = title.replace("%", "");
+                where_stmt_exact_match = String.format("WHERE (b.isbn = ba.isbn) and (title LIKE '%s')", title);
+            }
         } else if (choice == 3) {
             // Query by author name
             System.out.print("Input the author name (wild cards '%' and '_' are supported): ");
@@ -64,62 +63,68 @@ class CustomerInterface extends Main {
             Scanner scanner = new Scanner(System.in);
             String author_name = scanner.nextLine();
 
-            // Construct exact match pattern
-            if (author_name.substring(1, author_name.length() - 1).indexOf('%') == -1)
+            where_stmt_general = String.format("WHERE (b.isbn = ba.isbn) and (author_name LIKE '%s')", author_name);
+
+            // Construct query statement for exact match
+            if (author_name.substring(1, author_name.length() - 1).indexOf('%') == -1) {
                 // '%' does not exist in the middle of the input
-                // @formatter:off
-                order_stmt = String.format("CASE WHEN author_name LIKE '%s' THEN 0 ELSE 1 END,",
-                        author_name.replace("%", ""));
-                // @formatter:on
-
-            where_stmt = String.format("WHERE (b.isbn = ba.isbn) and (author_name LIKE '%s')", author_name);
+                author_name = author_name.replace("%", "");
+                where_stmt_exact_match = String.format("WHERE (b.isbn = ba.isbn) and (author_name LIKE '%s')", author_name);
+            }
         } else return;
-
-        // Construct the complete SQL statement
-        // @formatter:off
-        String sql_statement = String.join(" ",
-                "SELECT b.isbn, title, unit_price, no_of_copies, author_name",
-                "FROM book b, book_author ba",
-                where_stmt,
-                "ORDER BY",
-                order_stmt,
-                "title, b.isbn, author_name");
-        // @formatter:on
 
         // Print query result
         try {
-            long previous_isbn = -1;
-            int record_count = 0, author_count = -1;
+            List<Long> printed_isbn_list = new ArrayList<>();
+            long current_isbn = -1;
+            int author_count = -1;
 
-            ExecuteQuery query = new ExecuteQuery(sql_statement);
-            while (query.rs.next()) {
-                long isbn = query.rs.getLong(1);
-                String title = query.rs.getString(2);
-                int unit_price = query.rs.getInt(3);
-                int no_of_copies = query.rs.getInt(4);
-                String author_name = query.rs.getString(5);
+            // Exact matches go first
+            for (String where_stmt : new String[]{where_stmt_exact_match, where_stmt_general}) {
+                if (where_stmt == null) continue;
 
-                if (isbn == previous_isbn) {
-                    // Same book as the previous iteration
-                    author_count++;
-                } else {
-                    record_count++;
-                    author_count = 1;
+                // Construct the complete SQL statement
+                // @formatter:off
+                String sql_statement = String.join(" ",
+                        "SELECT b.isbn, title, unit_price, no_of_copies, author_name",
+                        "FROM book b, book_author ba",
+                        where_stmt,
+                        "ORDER BY title, b.isbn, author_name");
+                // @formatter:on
 
-                    System.out.printf("\nRecord %d\n", record_count);
-                    System.out.println("ISBN: " + isbn_long_to_str(isbn));
-                    System.out.println("Book title: " + title);
-                    System.out.printf("Unit price: %d\n", unit_price);
-                    System.out.printf("No. of available: %d\n", no_of_copies);
-                    System.out.println("Authors:");
+                ExecuteQuery query = new ExecuteQuery(sql_statement);
+                while (query.rs.next()) {
+                    long isbn = query.rs.getLong(1);
+                    String title = query.rs.getString(2);
+                    int unit_price = query.rs.getInt(3);
+                    int no_of_copies = query.rs.getInt(4);
+                    String author_name = query.rs.getString(5);
+
+                    // Skip if the book is printed already
+                    if (printed_isbn_list.contains(isbn)) continue;
+
+                    if (isbn == current_isbn) {
+                        // Print the remaining authors of the book that is currently printing
+                        author_count++;
+                    } else {
+                        printed_isbn_list.add(current_isbn);  // Record the ISBN of the book that has just been printed
+                        author_count = 1;
+
+                        System.out.printf("\nRecord %d\n", printed_isbn_list.size());
+                        System.out.println("ISBN: " + isbn_long_to_str(isbn));
+                        System.out.println("Book title: " + title);
+                        System.out.printf("Unit price: %d\n", unit_price);
+                        System.out.printf("No. of available: %d\n", no_of_copies);
+                        System.out.println("Authors:");
+                    }
+                    System.out.printf("%d: %s\n", author_count, author_name);
+
+                    current_isbn = isbn;
                 }
-                System.out.printf("%d: %s\n", author_count, author_name);
-
-                previous_isbn = isbn;
+                query.close();
             }
-            query.close();
 
-            if (record_count == 0) System.out.println("No results found.");
+            if (printed_isbn_list.isEmpty()) System.out.println("No results found.");
         } catch (Exception e) {
             System.err.println("Failed to query: " + e.getMessage());
         }
