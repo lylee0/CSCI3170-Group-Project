@@ -16,6 +16,18 @@ class BookstoreInterface extends Main {
         system_date = parent_instance.system_date;
     }
 
+    void order_update() {
+        // ...
+    }
+
+    void order_query() {
+        // ...
+    }
+
+    void popular_book_query() {
+        // ...
+    }
+
     /* Must set 'public' since this method is 'public' in the superclass */
     public void loop() {
         while (true) {
