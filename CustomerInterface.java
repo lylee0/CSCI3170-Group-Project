@@ -1,4 +1,41 @@
-//package Project.codes;
+class CustomerInterface extends Main {
+    CustomerInterface(Main parent_instance) {
+        // inherit instance objects from the parent instance
+        conn = parent_instance.conn;
+        system_date = parent_instance.system_date;
+    }
+
+    void print_menu() {
+        System.out.println("\n<This is the customer interface>");
+        System.out.println("---------------------------------");
+        System.out.println("1. Book search");
+        System.out.println("2. Order creation");
+        System.out.println("3. Order altering");
+        System.out.println("4. Order query");
+        System.out.println("5. Back to main menu");
+        System.out.print("\nPlease enter your choice??..");
+    }
+
+    /* Must set 'public' since this method is 'public' in the superclass */
+    public void loop() {
+        while (true) {
+            print_menu();
+            int choice = get_user_choice(5);
+
+            if (choice == 1) {
+                // ...
+            } else if (choice == 2) {
+                // ...
+            } else if (choice == 3) {
+                // ...
+            } else if (choice == 4) {
+                // ...
+            } else break;
+        }
+    }
+}
+
+/*
 import java.util.Scanner;
 
 public class CustomerInterface{
@@ -97,3 +134,4 @@ public class CustomerInterface{
         // to be done
     }
 }
+ */
