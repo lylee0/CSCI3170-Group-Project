@@ -1,24 +1,25 @@
 class BookstoreInterface extends Main {
+    // @formatter:off
+    static String[] main_menu = {
+            "<This is the bookstore interface>",
+            "----------------------------------",
+            "1. Order update",
+            "2. Order query",
+            "3. N most popular book query",
+            "4. Back to main menu",
+    };
+    // @formatter:on
+
     BookstoreInterface(Main parent_instance) {
         // inherit instance objects from the parent instance
         conn = parent_instance.conn;
         system_date = parent_instance.system_date;
     }
 
-    void print_menu() {
-        System.out.println("\n<This is the bookstore interface>");
-        System.out.println("----------------------------------");
-        System.out.println("1. Order update");
-        System.out.println("2. Order query");
-        System.out.println("3. N most popular book query");
-        System.out.println("4. Back to main menu");
-        System.out.print("\nPlease enter your choice??..");
-    }
-
     /* Must set 'public' since this method is 'public' in the superclass */
     public void loop() {
         while (true) {
-            print_menu();
+            print_menu(main_menu);
             int choice = get_user_choice(4);
 
             if (choice == 1) {
