@@ -34,63 +34,6 @@ public class Main {
         }
     }
 
-    class CustomerInterface {
-        void print_menu() {
-            System.out.println("\n<This is the customer interface>");
-            System.out.println("---------------------------------");
-            System.out.println("1. Book search");
-            System.out.println("2. Order creation");
-            System.out.println("3. Order altering");
-            System.out.println("4. Order query");
-            System.out.println("5. Back to main menu");
-            System.out.print("\nPlease enter your choice??..");
-        }
-
-        void loop() {
-            while (true) {
-                print_menu();
-                int choice = get_user_choice(5);
-
-                if (choice == 1) {
-                    // ...
-                } else if (choice == 2) {
-                    // ...
-                } else if (choice == 3) {
-                    // ...
-                } else if (choice == 4) {
-                    // ...
-                } else break;
-            }
-        }
-    }
-
-    class BookstoreInterface {
-        void print_menu() {
-            System.out.println("\n<This is the bookstore interface>");
-            System.out.println("----------------------------------");
-            System.out.println("1. Order update");
-            System.out.println("2. Order query");
-            System.out.println("3. N most popular book query");
-            System.out.println("4. Back to main menu");
-            System.out.print("\nPlease enter your choice??..");
-        }
-
-        void loop() {
-            while (true) {
-                print_menu();
-                int choice = get_user_choice(4);
-
-                if (choice == 1) {
-                    // ...
-                } else if (choice == 2) {
-                    // ...
-                } else if (choice == 3) {
-                    // ...
-                } else break;
-            }
-        }
-    }
-
     static String date_int_to_str(int date_int) {
         String year = String.format("%04d", date_int / 10000);
         String month = String.format("%02d", date_int % 10000 / 100);
@@ -199,8 +142,8 @@ public class Main {
             int choice = get_user_choice(5);
 
             if (choice == 1) new SystemInterface(this).loop();
-            else if (choice == 2) new CustomerInterface().loop();
-            else if (choice == 3) new BookstoreInterface().loop();
+            else if (choice == 2) new CustomerInterface(this).loop();
+            else if (choice == 3) new BookstoreInterface(this).loop();
             else if (choice == 4) show_system_date();
             else break;
         }
