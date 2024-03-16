@@ -131,6 +131,7 @@ class CustomerInterface extends Main {
     }
 
     void order_creation() {
+        System.out.print("Please enter your customer ID: ");
         // ...
     }
 
