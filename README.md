@@ -3,21 +3,21 @@
 
 Checklist:
 - [ ] Main menu
-    - [x] System Interface
-        - [x] Create Table
-        - [x] Delete Table
-        - [x] Insert Data
-        - [x] Set System Date
+    - [x] System interface
+        - [x] Create table
+        - [x] Delete table
+        - [x] Insert data
+        - [x] Set system date
         - [x] Back to main menu
-    - [ ] Customer Interface
-        - [ ] Book Search
-        - [ ] Order Creation
-        - [ ] Order Alerting
-        - [ ] Order Query
-        - [ ] Back to main menu
-    - [ ] Bookstore Interface
-        - [ ] Order Update
-        - [ ] Order Query
-        - [ ] N most Popular Book Query
-        - [ ] Back to main menu
-- [ ] Error Handling
+    - [ ] Customer interface
+        - [x] Book search
+        - [ ] Order creation
+        - [ ] Order alerting
+        - [ ] Order query
+        - [x] Back to main menu
+    - [ ] Bookstore interface
+        - [ ] Order update
+        - [ ] Order query
+        - [ ] N most popular book query
+        - [x] Back to main menu
+- [ ] Error handling
