@@ -3,6 +3,18 @@ import java.time.*;
 import java.util.*;
 
 public class Main {
+    // @formatter:off
+    static String[] main_menu = {
+            "<This is the Book Ordering System>",
+            "-----------------------------------",
+            "1. System interface",
+            "2. Customer interface",
+            "3. Bookstore interface",
+            "4. Show system date",
+            "5. Quit the system......",
+    };
+    // @formatter:on
+
     // Instance objects that should be inherited by every subclass
     Connection conn;
     IntWrapper system_date = new IntWrapper(0);
@@ -64,6 +76,30 @@ public class Main {
         return true;
     }
 
+    static String isbn_long_to_str(long isbn_int) {
+        String isbn_str = String.format("%010d", isbn_int);
+
+        String part_1 = isbn_str.substring(0, 1);
+        String part_2 = isbn_str.substring(1, 5);
+        String part_3 = isbn_str.substring(5, 9);
+        String part_4 = isbn_str.substring(9);
+
+        return String.join("-", part_1, part_2, part_3, part_4);
+    }
+
+    static void print_menu(String[] lines) {
+        // Print a blank line first
+        System.out.println();
+
+        // Print the menu content
+        for (String line : lines) {
+            System.out.println(line);
+        }
+
+        // Print user prompt
+        System.out.print("\nPlease enter your choice??..");
+    }
+
     static int get_user_choice(int n_choices) {
         // construct the list of choices
         List<String> choices = new ArrayList<>();
@@ -91,7 +127,10 @@ public class Main {
 
         // Establish a connection
         try {
-            conn = DriverManager.getConnection("jdbc:oracle:thin:@//db18.cse.cuhk.edu.hk:1521/oradb.cse.cuhk.edu.hk", "h030", "Kapaibco");  // 'user', 'password'
+            // @formatter:off
+            conn = DriverManager.getConnection("jdbc:oracle:thin:@//db18.cse.cuhk.edu.hk:1521/oradb.cse.cuhk.edu.hk",
+                    "h030", "Kapaibco");  // 'user', 'password'
+            // @formatter:on
         } catch (Exception e) {
             System.err.println("Failed to connect to the database: " + e.getMessage());
             return false;
@@ -120,17 +159,6 @@ public class Main {
         System.out.println("\nThe system date is now: " + date_int_to_str(system_date.value));
     }
 
-    void print_menu() {
-        System.out.println("\n<This is the Book Ordering System>");
-        System.out.println("-----------------------------------");
-        System.out.println("1. System interface");
-        System.out.println("2. Customer interface");
-        System.out.println("3. Bookstore interface");
-        System.out.println("4. Show system date");
-        System.out.println("5. Quit the system......");
-        System.out.print("\nPlease enter your choice??..");
-    }
-
     /* Set 'public', since this is theoretically the only entrance to the entire application, apart from main(). */
     public void loop() {
         if (!connect_database()) return;  // Failed
@@ -138,7 +166,7 @@ public class Main {
         show_system_date();
 
         while (true) {
-            print_menu();
+            print_menu(main_menu);
             int choice = get_user_choice(5);
 
             if (choice == 1) new SystemInterface(this).loop();
