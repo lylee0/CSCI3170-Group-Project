@@ -130,6 +130,18 @@ class CustomerInterface extends Main {
         }
     }
 
+    void order_creation() {
+        // ...
+    }
+
+    void order_altering() {
+        // ...
+    }
+
+    void order_query() {
+        // ...
+    }
+
     /* Must set 'public' since this method is 'public' in the superclass */
     public void loop() {
         while (true) {
@@ -137,13 +149,10 @@ class CustomerInterface extends Main {
             int choice = get_user_choice(5);
 
             if (choice == 1) book_search();
-            else if (choice == 2) {
-                // ...
-            } else if (choice == 3) {
-                // ...
-            } else if (choice == 4) {
-                // ...
-            } else break;
+            else if (choice == 2) order_creation();
+            else if (choice == 3) order_altering();
+            else if (choice == 4) order_query();
+            else break;
         }
     }
 }
