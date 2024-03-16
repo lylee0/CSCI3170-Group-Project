@@ -1,10 +1,25 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.util.*;
 
 class SystemInterface extends Main {
-    static String[] table_names = {"book", "customer", "orders", "ordering", "book_author"};
+    // @formatter:off
+    static String[] main_menu = {
+            "<This is the system interface>",
+            "-------------------------------",
+            "1. Create table",
+            "2. Delete table",
+            "3. Insert data",
+            "4. Set system date",
+            "5. Back to main menu",
+    };
+    static String[] table_names = {
+            "book",
+            "customer",
+            "orders",
+            "ordering",
+            "book_author",
+    };
+    // @formatter:on
 
     SystemInterface(Main parent_instance) {
         // inherit instance objects from the parent instance
@@ -173,7 +188,7 @@ class SystemInterface extends Main {
 
         // Get latest date in orders
         try {
-            Main.ExecuteQuery query = new Main.ExecuteQuery("SELECT MAX(o_date) FROM orders");
+            ExecuteQuery query = new ExecuteQuery("SELECT MAX(o_date) FROM orders");
             query.rs.next();  // Move the cursor to the 1st row of the result set
             int latest_order_date = query.rs.getInt(1);  // 0 if the table is empty
             query.close();
@@ -188,21 +203,10 @@ class SystemInterface extends Main {
         System.out.println("Today is " + date_int_to_str(system_date.value));
     }
 
-    void print_menu() {
-        System.out.println("\n<This is the system interface>");
-        System.out.println("-------------------------------");
-        System.out.println("1. Create table");
-        System.out.println("2. Delete table");
-        System.out.println("3. Insert data");
-        System.out.println("4. Set system date");
-        System.out.println("5. Back to main menu");
-        System.out.print("\nPlease enter your choice??..");
-    }
-
     /* Must set 'public' since this method is 'public' in the superclass */
     public void loop() {
         while (true) {
-            print_menu();
+            print_menu(main_menu);
             int choice = get_user_choice(5);
 
             if (choice == 1) create_table();
