@@ -1,17 +1,52 @@
+class BookstoreInterface extends Main {
+    BookstoreInterface(Main parent_instance) {
+        // inherit instance objects from the parent instance
+        conn = parent_instance.conn;
+        system_date = parent_instance.system_date;
+    }
+
+    void print_menu() {
+        System.out.println("\n<This is the bookstore interface>");
+        System.out.println("----------------------------------");
+        System.out.println("1. Order update");
+        System.out.println("2. Order query");
+        System.out.println("3. N most popular book query");
+        System.out.println("4. Back to main menu");
+        System.out.print("\nPlease enter your choice??..");
+    }
+
+    /* Must set 'public' since this method is 'public' in the superclass */
+    public void loop() {
+        while (true) {
+            print_menu();
+            int choice = get_user_choice(4);
+
+            if (choice == 1) {
+                // ...
+            } else if (choice == 2) {
+                // ...
+            } else if (choice == 3) {
+                // ...
+            } else break;
+        }
+    }
+}
+
+/*
 //package Project.codes;
 import java.util.Scanner;
 
-public class BookstoreInterface{
+public class BookstoreInterface {
     private Scanner scanner;
 
-    public void start(){
+    public void start() {
         printOptions();
         scanner = new Scanner(System.in);
         Integer input = getInput(scanner);
         run(input, scanner);
     }
 
-    public void printOptions(){
+    public void printOptions() {
         System.out.println("<This is the bookstore interface.>");
         System.out.println("----------------------------------");
         System.out.println("1. Order Update.");
@@ -20,13 +55,13 @@ public class BookstoreInterface{
         System.out.println("4. Back to main menu.");
     }
 
-    public getInput(Scanner scanner){
+    public getInput(Scanner scanner) {
         System.out.println("\nWhat is your choice??..");
         Integer input = Integer.parseInt(scanner.next());
         return input;
     }
 
-    public void run(Integer input, Scanner scanner){
+    public void run(Integer input, Scanner scanner) {
         if (input == 1) {
             orderUpdate();
         } else if (input == 2) {
@@ -35,15 +70,14 @@ public class BookstoreInterface{
             popularBook();
         } else if (input == 4) {
             Main.main(new String[0]);  // change to the name of main function
-        }
-        else {
+        } else {
             System.out.println("Invalid input, please try again.");
             input = getInput(scanner);
             run(input, scanner);
         }
     }
 
-    private void orderUpdate(){
+    private void orderUpdate() {
         System.out.println("Please input the order ID: ");
         //get input
         //print
@@ -54,7 +88,7 @@ public class BookstoreInterface{
         start();
     }
 
-    private void orderQuery(){
+    private void orderQuery() {
         System.out.println("Please input the Month for Order Query (e.g.2005-09): ");
         //get input
         //print
@@ -63,7 +97,7 @@ public class BookstoreInterface{
         start();
     }
 
-    private void popularBook(){
+    private void popularBook() {
         System.out.println("Please input the N popular books number: ");
         //get input
         //print
@@ -71,3 +105,4 @@ public class BookstoreInterface{
         start();
     }
 }
+ */
