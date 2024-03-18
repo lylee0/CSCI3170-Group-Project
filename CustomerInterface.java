@@ -305,12 +305,50 @@ class CustomerInterface extends Main {
             System.out.println("Please enter the book's ISBN:");
             choice = scanner.nextLine();
         }
-
+        scanner.close();
         loop();
     }
 
     void order_altering() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Please enter the OrderID that you want to change: ");
+        String input = scanner.nextLine();
+        //long order_id = Long.parseLong(input);
+        while (input){
+            long order_id = Long.parseLong(input);
+            String sql_statement = String.format("SELECT o.order_id FROM orders o WHERE o.order_id = %d", order_id); // not sure
+            ExecuteQuery query = new ExecuteQuery(sql_statement);
+            while (query.rs.next()){
+                String id_check = query.rs.getString(1);
+            }
+            if (id_check == order_id){
+                break;
+            }
+            else{
+                System.out.print("Wrong order ID.");
+                System.out.print("Please enter the OrderID that you want to change again: ");
+                input = scanner.nextLine();
+            }
+        }
+
+        String sql_statement = String.format("SELECT o.order_id, o.shipping_status, o.charge, o.customer_id FROM orders o WHERE o.order_id = %d", order_id); // not sure
+        ExecuteQuery query = new ExecuteQuery(sql_statement);
+        //find order
+        while (query.rs.next()) {
+            long order_id = query.rs.getLong(1);
+            String shipping_status = query.rs.getString(2);
+            int charge = query.rs.getInt(3);
+            String customer_id = query.rs.getString(4);
+        }
+        //find ordering
+        //get list of books ordered
         // ...
+        System.out.println("Which book you want to alter (input book no.):\n");
+        int book_alter = get_user_choice;
+        //int book_alter = scanner.nextLine();
+        //check range, or call function to check
+
+        scanner.close();
     }
 
     void order_query() {
