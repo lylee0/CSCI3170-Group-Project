@@ -18,6 +18,10 @@ class CustomerInterface extends Main {
             "3. Author name",
             "4. Exit"
     };
+    static String[] order_creation_menu = {
+        ">> Input ISBN and then the quantity.",
+        ">> You can press 'L' to see ordered list, or 'F' to finish ordering."
+    };
     // @formatter:on
 
     CustomerInterface(Main parent_instance) {
@@ -132,7 +136,102 @@ class CustomerInterface extends Main {
 
     void order_creation() {
         System.out.print("Please enter your customer ID: ");
-        // ...
+        Scanner scanner = new Scanner(System.in);
+        String customer_id = scanner.nextLine();
+        // handle wrong customer id
+        Map<String, Integer> isbn_quantity = new LinkedHashMap<>();
+        //Dictionary<String, Integer> isbn_quantity= new Hashtable<>();
+
+        print_menu(order_creation_menu);
+        System.out.println("Please enter the book's ISBN:");
+        String choice = scanner.nextLine();
+
+        // create list of isbn and quantity
+        while (choice != null){
+            if (choice == "L"){
+                // print isbn and quantity
+                System.out.println("ISBN              Number:");
+                //print dict line by line
+                for (Map.Entry<String, Integer> entry : isbn_quantity.entrySet()) {
+                    String key = entry.getKey();
+                    Integer value = entry.getValue();
+                    System.out.println(key + value);
+                }
+            }
+            else if (choice == "F"){ 
+                //if no order, break 
+                        
+                //find order id, greatest id + 1
+                //o_date == system date
+                //shipping status == "N"
+                //find charge, get book price * quantity, sum up
+                //shipping charge = total quantity * 10 + 10
+                // need to handle 0 case?
+                //insert
+                //one quantity != 0, True, otherwise ask for isbn again
+                //modify no_of_copies
+                System.out.println("Ordering Finished!");
+                break;
+            }
+            else{
+                choice = choice.replace("-", "");
+                String isbn = choice;
+                //check if book exist
+                String sql_statement = String.format("SELECT b.isbn FROM book b WHERE b.isbn = '%s'", isbn);
+                ExecuteQuery query = new ExecuteQuery(sql_statement);
+                while (query.rs.next()){
+                    long isbn_check = query.rs.getLong(1);
+                }
+                //if book does not exit, get input, break
+                if (isbn_check == null){
+                    System.out.println("We do not have this book. Please choose another book.");
+                    System.out.println("Please enter the book's ISBN:");
+                    choice = scanner.nextLine();
+                    break;
+                }
+                //check if book is avaible
+                sql_statement = String.format("SELECT b.no_of_copies FROM book b WHERE b.isbn = '%s'", isbn);
+                // @formatter:on
+                query = new ExecuteQuery(sql_statement);
+                while (query.rs.next()){
+                    long no_of_copies = query.rs.getLong(1);
+                }
+                //if the book is out of stock, get another input
+                if (no_of_copies == 0) {
+                    System.out.println("The book is out of stock. Please choose another book.");
+                    System.out.println("Please enter the book's ISBN:");
+                    choice = scanner.nextLine();
+                    break;
+                }
+                else{
+                    // get quantity
+                    System.out.println("Please enter the quantity of the order: ");
+                    String quantity = scanner.nextLine();
+
+                    //gather same book
+                    if (isbn_quantity.containsKey(isbn)){
+                        long num_order = isbn_quantity.get(isbn);
+                    }
+                    else{
+                        long num_order = 0;
+                    }
+                    while(no_of_copies < (quantity + num_order)){ //check if copies are enough
+                        System.out.println(String.format("You have already ordered %d copies.", num_order));
+                        System.out.println(String.format("There are only in total %d copies. ", no_of_copies));
+                        System.out.println("Please enter the quantity of the order again: ");
+                        quantity = scanner.nextLine();
+                    }
+                    quantity += num_order;
+                    //add to dict
+                    isbn_quantity.put(isbn, quantity);
+                }
+
+            }
+            System.out.println("Please enter the book's ISBN:");
+            choice = scanner.nextLine();
+        }
+
+        loop();
     }
 
     void order_altering() {
