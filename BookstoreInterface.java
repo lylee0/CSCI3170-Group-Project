@@ -48,10 +48,10 @@ class BookstoreInterface extends Main {
 /*
 public class BookstoreInterface {
     private void orderUpdate() {
-        System.out.println("Please input the order ID: ");
+        System.out.print("Please input the order ID: ");
         //get input
         //print
-        System.out.println("Are you sure to update the shipping status? (Yes=Y) ");
+        System.out.println("Are you sure to update the shipping status? (Yes=Y)");
         //get input
         System.out.println("Updated shipping status");
         // to be done
@@ -59,16 +59,16 @@ public class BookstoreInterface {
     }
 
     private void orderQuery() {
-        System.out.println("Please input the Month for Order Query (e.g.2005-09): ");
+        System.out.print("Please input the month for order query (e.g. 2005-09): ");
         //get input
         //print
-        System.out.println("Total charge of the month is : "); //print charge
+        System.out.print("Total charge of the month is: "); //print charge
         // to be done
         start();
     }
 
     private void popular_book_query() {
-        System.out.println("Please input the N popular books number: ");
+        System.out.print("Please input the N popular books number: ");
         //get input
         //print
         // to be done
