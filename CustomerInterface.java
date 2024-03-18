@@ -160,40 +160,41 @@ class CustomerInterface extends Main {
 
 /*
 public class CustomerInterface{
+
     private void orderCreation(){
-        System.out.println("Please enter your customerID:");
+        System.out.println("Please enter your customerID??");
         //get input
         System.out.println(">> What books do you want to order??");
         System.out.println(">> Input ISBN and then the quantity.");
-        System.out.println(">> You can press 'L' to see ordered list, or 'F' to finish ordering.");
-        System.out.println("Please enter the book's ISBN:");
+        System.out.println(">> You can press \"L\" to see ordered list, or \"F\" to finish ordering.");
+        System.out.println("Please enter the book's ISBN: ");
         //get input
         start();
         // to be done
     }
 
     private void orderAltering(){
-        System.out.println("Please enter the OrderID that you want to change:");
+        System.out.println("Please enter the OrderID that you want to change: ");
         //get input
         //print
-        System.out.println("Which book you want to alter (input book no.):");
+        System.out.println("Which book you want to alter (input book no.):\n");
         //get input
-        System.out.println("Input 'add' or 'remove':");
+        System.out.println("input add or remove");
         //get input
-        System.out.println("Input the number:");
+        System.out.println("Input the number: ");
         //get input
-        System.out.println("Update is OK!");
+        System.out.println("Update is ok!");
         System.out.println("Update done!!");
-        System.out.println("Updated charge.");
+        System.out.println("Update charge");
         //print
         start();
         // to be done
     }
 
     private void orderQuery(){
-        System.out.print("Please Input Customer ID: ");
+        System.out.println("Please Input Customer ID: ");
         //get input
-        System.out.print("Please Input the Year: ");
+        System.out.println("Please Input the Year: ");
         //get input
         //print
         start();
