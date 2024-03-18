@@ -135,10 +135,26 @@ class CustomerInterface extends Main {
     }
 
     void order_creation() {
-        System.out.print("Please enter your customer ID: ");
         Scanner scanner = new Scanner(System.in);
+        System.out.print("Please enter your customer ID: ");
         String customer_id = scanner.nextLine();
         // handle wrong customer id
+        while (customer_id){
+            String sql_statement = String.format("SELECT c.customer_id FROM customer c WHERE c.customer_id = %s", customer_id);
+            ExecuteQuery query = new ExecuteQuery(sql_statement);
+            while (query.rs.next()){
+                String id_check = query.rs.getString(1);
+            }
+            if (id_check == customer_id){
+                break;
+            }
+            else{
+                System.out.print("Wrong customer ID.");
+                System.out.print("Please enter your customer ID again: ");
+                customer_id = scanner.nextLine();
+            }
+        }
+ 
         Map<String, Integer> isbn_quantity = new LinkedHashMap<>();
         //Dictionary<String, Integer> isbn_quantity= new Hashtable<>();
 
@@ -155,21 +171,80 @@ class CustomerInterface extends Main {
                 for (Map.Entry<String, Integer> entry : isbn_quantity.entrySet()) {
                     String key = entry.getKey();
                     Integer value = entry.getValue();
-                    System.out.println(key + value);
+                    System.out.println(key + " " + value);
                 }
             }
             else if (choice == "F"){ 
                 //if no order, break 
-                        
-                //find order id, greatest id + 1
+                if (isbn_quantity.isEmpty()){
+                    System.out.println("You did not order any book.");
+                    System.out.println("Ordering fails");
+                    break;
+                }
+                Integer check = 0;
+                for (Map.Entry<String, Integer> entry : isbn_quantity.entrySet()) {
+                    Integer value = entry.getValue();
+                    if (value != 0){
+                        check = 1;
+                    }
+                }
+                if (check == 0){
+                    System.out.println("You did not order any book.");
+                    System.out.println("Ordering fails");
+                    break;
+                }
                 //o_date == system date
+                Integer o_date = system_date.value;
+                //find order id, greatest id + 1
+                sql_statement = "SELECT MAX(order_id) FROM orders";
+                query = new ExecuteQuery(sql_statement);
+                while (query.rs.next()){
+                    long order_id = query.rs.getLong(1);
+                }
+                if (order_id == null){
+                    order_id = 0; // need to change to string??? or formatting
+                }
+                else{
+                    order_id += 1;
+                }
                 //shipping status == "N"
+                String shipping_status = "N";
                 //find charge, get book price * quantity, sum up
                 //shipping charge = total quantity * 10 + 10
-                // need to handle 0 case?
+                long charge = 0;
+                long total_quantity = 0;
+                for (Map.Entry<String, Integer> entry : isbn_quantity.entrySet()) {
+                    String key = entry.getKey();
+                    Integer value = entry.getValue();
+                    sql_statement = "SELECT b.unit_price FROM book b";
+                    query = new ExecuteQuery(sql_statement);
+                    while (query.rs.next()){
+                        long unit_price = query.rs.getLong(1);
+                    }
+                    charge += (unit_price * value);
+                    total_quantity += value;
+
+                    //get no_of_copies
+                    sql_statement = String.format("SELECT b.no_of_copies FROM book b WHERE b.isbn = %s", isbn);
+                    query = new ExecuteQuery(sql_statement);
+                    while (query.rs.next()){
+                        long no_of_copies = query.rs.getLong(1);
+                    }
+                    //modify no_of_copies
+                    no_of_copies += value;   
+                    sql_statement = String.format("UPDATE book SET no_of_copies = %d WHERE isbn = %s", no_of_copies, key);
+                    query = new ExecuteQuery(sql_statement);
+
+                    //insert ordering
+                    sql_statement = String.format("INSERT INTO ordering (order_id, isbn, quantity) VALUES(%d, %s, %d)", order_id, isbn, quantity);
+                    query = new ExecuteQuery(sql_statement);
+                }
+                charge += 10;
+                charge += total_quantity * 10;
                 //insert
-                //one quantity != 0, True, otherwise ask for isbn again
-                //modify no_of_copies
+                sql_statement = String.format("INSERT INTO orders (order_id, o_date, shipping_status, charge, customer_id) VALUES(%d, %d, %s, %d, %s)", order_id, o_date, shipping_status, charge, customer_id);
+                query = new ExecuteQuery(sql_statement);
+
                 System.out.println("Ordering Finished!");
                 break;
             }
@@ -259,17 +334,6 @@ class CustomerInterface extends Main {
 
 /*
 public class CustomerInterface{
-    private void orderCreation(){
-        System.out.println("Please enter your customerID:");
-        //get input
-        System.out.println(">> What books do you want to order??");
-        System.out.println(">> Input ISBN and then the quantity.");
-        System.out.println(">> You can press 'L' to see ordered list, or 'F' to finish ordering.");
-        System.out.println("Please enter the book's ISBN:");
-        //get input
-        start();
-        // to be done
-    }
 
     private void orderAltering(){
         System.out.println("Please enter the OrderID that you want to change:");
