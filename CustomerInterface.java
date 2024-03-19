@@ -500,7 +500,75 @@ class CustomerInterface extends Main {
     }
 
     void order_query() {
-        // ...
+        Integer system_date = system_date.value;
+        String system_date_str = date_int_to_str(o_date);
+        int system_year = Integer.parseInt(date.substring(0, 4));
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Please Input Customer ID: ");
+        String customer_id = scanner.nextLine();
+        //may define a function of checking customer id
+        // handle wrong customer id
+        while (customer_id){
+            String sql_statement = String.format("SELECT c.customer_id FROM customer c WHERE c.customer_id = %s", customer_id);
+            ExecuteQuery query = new ExecuteQuery(sql_statement);
+            while (query.rs.next()){
+                String id_check = query.rs.getString(1);
+            }
+            if (id_check == customer_id){
+                break;
+            }
+            else{
+                System.out.print("Wrong customer ID.");
+                System.out.print("Please enter your customer ID again: ");
+                customer_id = scanner.nextLine();
+            }
+        }
+        System.out.print("Please Input the Year: ");
+        int year = scanner.nextLine();
+        while(year){
+            //check if it is year
+            try {
+                int number = Integer.parseInt(year);
+                if ((year <= system_year) && (year >= 1000)){
+                    break;
+                }
+                else{
+                    System.out.println("Invalid year.");
+                    System.out.println("Please Input the Year again: ");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid year.");
+                System.out.println("Please Input the Year again: ");
+            }
+            year = scanner.nextLine();
+        }
+        //order: order_id, o_date, shipping_status, charge, customer_id
+
+        //sort order_id
+        String sql_statement = String.format("SELECT order_id, o_date, shipping status, charge FROM order WHERE customer_id = %s ORDER BY order_id ASC", customer_id);
+        ExecuteQuery query = new ExecuteQuery(sql_statement);
+        int index = 0;
+        while (query.rs.next()){
+            index++;
+            long order_id = query.rs.getLong(1);
+            int o_date = query.rs.getInt(2);
+            String shipping_status = query.rs.getString(3);
+            long charge = query.rs.getLong(4);
+
+            String date = date_int_to_str(o_date);
+            int order_year = Integer.parseInt(date.substring(0, 4));
+            if (order_year == year){
+                System.out.println(String.format("Record : %d", index));
+                System.out.println(String.format("OrderID : %08d", order_id)); //set 8 digits
+                System.out.println(String.format("OrderDate : %s", date));
+                System.out.println(String.format("charge : %d", charge));
+                System.out.println(String.format("shipping status : %s\n", shipping_status));
+            }
+        }
+        System.out.println("There are no more records");
+        scanner.close();
+        loop();
     }
 
     /* Must set 'public' since this method is 'public' in the superclass */
@@ -517,18 +585,3 @@ class CustomerInterface extends Main {
         }
     }
 }
-
-/*
-public class CustomerInterface{
-
-    private void orderQuery(){
-        System.out.print("Please Input Customer ID: ");
-        //get input
-        System.out.print("Please Input the Year: ");
-        //get input
-        //print
-        start();
-        // to be done
-    }
-}
- */
