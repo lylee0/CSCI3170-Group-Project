@@ -328,7 +328,7 @@ class CustomerInterface extends Main {
             }
             if (id_check == order_id){
                 if (status == "Y"){
-                    System.out.println("The order has been shipped");
+                    System.out.println("The books in the order are shipped”");
                     System.out.println("Please enter another OrderID or press E to cancel changes: ");
                     input = scanner.nextLine();
                 }
@@ -463,10 +463,10 @@ class CustomerInterface extends Main {
             }
         }
 
-        //book_ordered.clear();
-        //book_ordered.add(isbn);
-        //book_ordered.add(new_quantity);
-        //book_dict.put(book, book_ordered);
+        book_ordered.clear();
+        book_ordered.add(isbn);
+        book_ordered.add(new_quantity);
+        book_dict.put(book, book_ordered);
 
         //change stock, order, ordering, charge, date
         Long new_charge = charge - (unit_price + 10) * quantity - 10;
@@ -482,7 +482,21 @@ class CustomerInterface extends Main {
         sql_statement = String.format("UPDATE book SET no_of_copies = %d WHERE isbn = %d", new_copies, isbn);
         query = new ExecuteQuery(sql_statement);
 
+        System.out.println("Update is ok!");
+        System.out.println("Update done!!");
+        System.out.println("Updated charge");
+        System.out.print(String.format("order_id: %s shipping: %s charge: %d customer_id: %s", order_id, shipping_status, new_charge, customer_id));
+        for (Map.Entry<Integer, List> entry : book_dict.entrySet()) {
+            Integer key = entry.getKey();
+            Integer value = entry.getValue();
+            isbn = value.get(1);
+            String isbn_str = isbn_long_to_str(isbn);
+            quantity = value.get(2);
+            System.out.print(String.format("book no: %d ISBN = %s quantity = %d", key, isbn_str, quantity));
+        }
+
         scanner.close();
+        loop();
     }
 
     void order_query() {
