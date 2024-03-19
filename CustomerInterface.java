@@ -500,8 +500,8 @@ class CustomerInterface extends Main {
     }
 
     void order_query() {
-        Integer system_date = system_date.value;
-        String system_date_str = date_int_to_str(o_date);
+        Integer sys_date = system_date.value;
+        String system_date_str = date_int_to_str(sys_date);
         int system_year = Integer.parseInt(date.substring(0, 4));
 
         Scanner scanner = new Scanner(System.in);
