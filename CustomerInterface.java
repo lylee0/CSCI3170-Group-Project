@@ -306,7 +306,7 @@ class CustomerInterface extends Main {
             choice = scanner.nextLine();
         }
         scanner.close();
-        loop();
+        return;
     }
 
     void order_altering() {
@@ -317,7 +317,7 @@ class CustomerInterface extends Main {
         while (input){
             //cancel change
             if (input == "E"){
-                loop();
+                return;
             }
             long order_id = Long.parseLong(input);
             String sql_statement = String.format("SELECT o.order_id o.shipping_status FROM orders o WHERE o.order_id = %d", order_id); // not sure
@@ -496,7 +496,7 @@ class CustomerInterface extends Main {
         }
 
         scanner.close();
-        loop();
+        return;
     }
 
     void order_query() {
@@ -568,7 +568,7 @@ class CustomerInterface extends Main {
         }
         System.out.println("There are no more records");
         scanner.close();
-        loop();
+        return;
     }
 
     /* Must set 'public' since this method is 'public' in the superclass */
