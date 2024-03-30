@@ -142,7 +142,7 @@ class CustomerInterface extends Main {
         System.out.print("Please enter your customer ID: ");
         String customer_id = scanner.nextLine();
         // handle wrong customer id
-        while (customer_id != null) {
+        while (!customer_id.isEmpty()) {
             String id_check = "";
             try {
                 //String sql_statement = String.format("SELECT c.customer_id FROM customer c WHERE c.customer_id = %s", customer_id);
@@ -178,8 +178,8 @@ class CustomerInterface extends Main {
         String choice = scanner.nextLine();
 
         // create list of isbn and quantity
-        while (choice != null) {
-            if (choice == "L") {
+        while (!choice.isEmpty()) {
+            if (choice.equals("L")) {
                 // print isbn and quantity
                 System.out.println("ISBN              Number:");
                 //print dict line by line
@@ -188,7 +188,7 @@ class CustomerInterface extends Main {
                     Long value = entry.getValue();
                     System.out.println(key + "   " + value);
                 }
-            } else if (choice == "F") {
+            } else if (choice.equals("F")) {
                 //if no order, break 
                 if (isbn_quantity.isEmpty()) {
                     System.out.println("You did not order any book.");
@@ -198,7 +198,7 @@ class CustomerInterface extends Main {
                 int check = 0;
                 for (Map.Entry<String, Long> entry : isbn_quantity.entrySet()) {
                     Long value = entry.getValue();
-                    if (value != 0) {
+                    if (value == 0L) {
                         check = 1;
                         break;
                     }
@@ -225,10 +225,10 @@ class CustomerInterface extends Main {
                     System.err.println("Failed to query: " + e.getMessage());
                 }
 
-                if (order_id == 0) {
-                    order_id = 0; // need to change to string??? or formatting
+                if (order_id == 0L) {
+                    order_id = 0L; // need to change to string??? or formatting
                 } else {
-                    order_id += 1;
+                    order_id += 1L;
                 }
                 //shipping status == "N"
                 String shipping_status = "N";
@@ -321,7 +321,7 @@ class CustomerInterface extends Main {
                 choice = choice.replace("-", "");
                 String isbn = choice;
                 //check if book exist
-                long isbn_check = 0;
+                long isbn_check = 0L;
                 try {
                     String sql_statement = "SELECT b.isbn FROM book b WHERE b.isbn = ?";
                     PreparedStatement statement = conn.prepareStatement(sql_statement);
@@ -336,14 +336,14 @@ class CustomerInterface extends Main {
                     System.err.println("Failed to query: " + e.getMessage());
                 }
                 //if book does not exit, get input, break
-                if (isbn_check == 0) {
+                if (isbn_check == 0L) {
                     System.out.println("We do not have this book. Please choose another book.");
                     System.out.println("Please enter the book's ISBN:");
                     choice = scanner.nextLine();
                     break;
                 }
                 //check if book is avaible
-                long no_of_copies = 0;
+                long no_of_copies = 0L;
                 try {
                     String sql_statement = "SELECT b.no_of_copies FROM book b WHERE b.isbn = ?";
                     PreparedStatement statement = conn.prepareStatement(sql_statement);
@@ -358,7 +358,7 @@ class CustomerInterface extends Main {
                     System.err.println("Failed to query: " + e.getMessage());
                 }
                 //if the book is out of stock, get another input
-                if (no_of_copies == 0) {
+                if (no_of_copies == 0L) {
                     System.out.println("The book is out of stock. Please choose another book.");
                     System.out.println("Please enter the book's ISBN:");
                     choice = scanner.nextLine();
@@ -400,7 +400,7 @@ class CustomerInterface extends Main {
         long order_id = 0;
         while (input != null) {
             //cancel change
-            if (input == "E") {
+            if (input.equals("E")) {
                 return;
             }
             order_id = Long.parseLong(input);
@@ -504,7 +504,7 @@ class CustomerInterface extends Main {
         System.out.println("input add or remove"); //number to be incremented or decremented
         input = scanner.nextLine();
         while (input != null) {
-            if ((input == "add") || (input == "remove")) {
+            if ((input.equals("add")) || (input.equals("remove"))) {
                 break;
             } else {
                 System.out.println("Wrong input. Please input again.");
@@ -547,7 +547,7 @@ class CustomerInterface extends Main {
             } catch (Exception e) {
                 System.err.println("Failed to query: " + e.getMessage());
             }
-            if (input == "add") {
+            if (input.equals("add")) {
                 // check if enough copy
                 book = book_dict.get(book_alter);
                 isbn = book.get(1);
@@ -565,7 +565,7 @@ class CustomerInterface extends Main {
                     new_quantity = quantity + quan_alter;
                     break;
                 }
-            } else if (input == "remove") {
+            } else if (input.equals("remove")) {
                 //check if greater than or equals to the quantity ordered
                 book = book_dict.get(book_alter);
                 isbn = book.get(1);
