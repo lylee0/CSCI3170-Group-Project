@@ -30,58 +30,58 @@ class SystemInterface extends Main {
     /* Create all tables regardless of errors. */
     void create_table() {
         Map<String, String> table_definitions = new LinkedHashMap<>();
-        table_definitions.put("book", """
-                CREATE TABLE book
-                (
-                    isbn         INTEGER,
-                    title        VARCHAR(100),
-                    unit_price   INTEGER,
-                    no_of_copies INTEGER,
-                    PRIMARY KEY (isbn)
-                )
-                """);
-        table_definitions.put("customer", """
-                CREATE TABLE customer
-                (
-                    customer_id      VARCHAR(10),
-                    name             VARCHAR(50),
-                    shipping_address VARCHAR(200),
-                    credit_card_no   INTEGER,
-                    PRIMARY KEY (customer_id)
-                )
-                """);
-        table_definitions.put("orders", """
-                CREATE TABLE orders
-                (
-                    order_id        INTEGER,
-                    o_date          INTEGER,
-                    shipping_status CHAR,
-                    charge          INTEGER,
-                    customer_id     VARCHAR(10),
-                    PRIMARY KEY (order_id),
-                    FOREIGN KEY (customer_id) REFERENCES customer
-                )
-                """);
-        table_definitions.put("ordering", """
-                CREATE TABLE ordering
-                (
-                    order_id INTEGER,
-                    isbn     INTEGER,
-                    quantity INTEGER,
-                    PRIMARY KEY (order_id, isbn),
-                    FOREIGN KEY (order_id) REFERENCES orders,
-                    FOREIGN KEY (isbn) REFERENCES book
-                )
-                """);
-        table_definitions.put("book_author", """
-                CREATE TABLE book_author
-                (
-                    isbn        INTEGER,
-                    author_name VARCHAR(50),
-                    PRIMARY KEY (isbn, author_name),
-                    FOREIGN KEY (isbn) REFERENCES book
-                )
-                """);
+        table_definitions.put("book", String.join("\n",
+                "CREATE TABLE book",
+                "(",
+                "    isbn         INTEGER,",
+                "    title        VARCHAR(100),",
+                "    unit_price   INTEGER,",
+                "    no_of_copies INTEGER,",
+                "    PRIMARY KEY (isbn)",
+                ")"
+        ));
+        table_definitions.put("customer", String.join("\n",
+                "CREATE TABLE customer",
+                "(",
+                "    customer_id      VARCHAR(10),",
+                "    name             VARCHAR(50),",
+                "    shipping_address VARCHAR(200),",
+                "    credit_card_no   INTEGER,",
+                "    PRIMARY KEY (customer_id)",
+                ")"
+        ));
+        table_definitions.put("orders", String.join("\n",
+                "CREATE TABLE orders",
+                "(",
+                "    order_id        INTEGER,",
+                "    o_date          INTEGER,",
+                "    shipping_status CHAR,",
+                "    charge          INTEGER,",
+                "    customer_id     VARCHAR(10),",
+                "    PRIMARY KEY (order_id),",
+                "    FOREIGN KEY (customer_id) REFERENCES customer",
+                ")"
+        ));
+        table_definitions.put("ordering", String.join("\n",
+                "CREATE TABLE ordering",
+                "(",
+                "    order_id INTEGER,",
+                "    isbn     INTEGER,",
+                "    quantity INTEGER,",
+                "    PRIMARY KEY (order_id, isbn),",
+                "    FOREIGN KEY (order_id) REFERENCES orders,",
+                "    FOREIGN KEY (isbn) REFERENCES book",
+                ")"
+        ));
+        table_definitions.put("book_author", String.join("\n",
+                "CREATE TABLE book_author",
+                "(",
+                "    isbn        INTEGER,",
+                "    author_name VARCHAR(50),",
+                "    PRIMARY KEY (isbn, author_name),",
+                "    FOREIGN KEY (isbn) REFERENCES book",
+                ")"
+        ));
 
         table_definitions.forEach((table_name, table_definition) -> {
             if (execute_update(table_definition)) System.out.printf("Table '%s' has been created.\n", table_name);
