@@ -23,3 +23,4 @@ Checklist:
 - [ ] Error handling
 
 javac -cp .:/path/to/jdbc-driver.jar *.java
+javac -encoding UTF-8 -cp .ojdbc7.jar *.java
