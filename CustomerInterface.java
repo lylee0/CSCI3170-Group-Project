@@ -153,8 +153,6 @@ class CustomerInterface extends Main {
                 //ExecuteQuery query = new ExecuteQuery(sql_statement);
                 while (resultSet.next()) {
                     id_check = resultSet.getString(1);
-                    System.out.println(customer_id);
-                    System.out.println(id_check);
                 }
                 resultSet.close();
             } catch (Exception e) {
