@@ -21,10 +21,6 @@ class CustomerInterface extends Main {
             "3. Author name",
             "4. Exit"
     };
-    static String[] order_creation_menu = {
-        ">> Input ISBN and then the quantity.",
-        ">> You can press 'L' to see ordered list, or 'F' to finish ordering."
-    };
     // @formatter:on
 
     CustomerInterface(Main parent_instance) {
@@ -171,20 +167,23 @@ class CustomerInterface extends Main {
         Map<String, Long> isbn_quantity = new LinkedHashMap<>();
         //Dictionary<String, Integer> isbn_quantity= new Hashtable<>();
 
-        print_menu(order_creation_menu);
+        System.out.println(">> Input ISBN and then the quantity.");
+        System.out.println(">> You can press 'L' to see ordered list, or 'F' to finish ordering.");
         System.out.println("Please enter the book's ISBN:");
-        String choice = scanner.nextLine();
+        String choice = scanner.next();
 
         // create list of isbn and quantity
         while (!choice.isEmpty()) {
             if (choice.equals("L")) {
                 // print isbn and quantity
-                System.out.println("ISBN              Number:");
+                System.out.println("ISBN            Number:");
                 //print dict line by line
                 for (Map.Entry<String, Long> entry : isbn_quantity.entrySet()) {
                     String key = entry.getKey();
+                    Long key_long = Long.parseLong(key);
                     Long value = entry.getValue();
-                    System.out.println(key + "   " + value);
+                    String key_str = isbn_long_to_str(key_long);
+                    System.out.println(key_str + "   " + value);
                 }
             } else if (choice.equals("F")) {
                 //if no order, break 
@@ -193,21 +192,21 @@ class CustomerInterface extends Main {
                     System.out.println("Ordering fails");
                     break;
                 }
-                int check = 0;
+                int check = 1;
                 for (Map.Entry<String, Long> entry : isbn_quantity.entrySet()) {
                     Long value = entry.getValue();
-                    if (value == 0L) {
-                        check = 1;
+                    if (value != 0) {
+                        check = 0;
                         break;
                     }
                 }
-                if (check == 0) {
+                if (check == 1) {
                     System.out.println("You did not order any book.");
                     System.out.println("Ordering fails");
                     break;
                 }
                 //o_date == system date
-                Integer o_date = system_date.value;
+                int o_date = system_date.value;
                 //find order id, greatest id + 1
                 long order_id = 0;
                 try {
@@ -223,10 +222,10 @@ class CustomerInterface extends Main {
                     System.err.println("Failed to query: " + e.getMessage());
                 }
 
-                if (order_id == 0L) {
-                    order_id = 0L; // need to change to string??? or formatting
+                if (order_id == 0) {
+                    order_id = 0; // need to change to string??? or formatting
                 } else {
-                    order_id += 1L;
+                    order_id += 1;
                 }
                 //shipping status == "N"
                 String shipping_status = "N";
@@ -270,7 +269,7 @@ class CustomerInterface extends Main {
                         System.err.println("Failed to query: " + e.getMessage());
                     }
                     //modify no_of_copies
-                    no_of_copies += value;
+                    no_of_copies -= value;
                     try{
                         String sql_statement ="UPDATE book SET no_of_copies = ? WHERE isbn = ?";
                         PreparedStatement statement = conn.prepareStatement(sql_statement);
@@ -282,19 +281,8 @@ class CustomerInterface extends Main {
                         System.err.println("Failed to query: " + e.getMessage());
                     }
 
-                    //insert ordering
-                    try{
-                        String sql_statement = "INSERT INTO ordering (order_id, isbn, quantity) VALUES(?, ?, ?)";
-                        PreparedStatement statement = conn.prepareStatement(sql_statement);
-                        statement.setLong(1, order_id);
-                        statement.setString(2, key);
-                        statement.setLong(3, value);
-                        statement.executeUpdate();
-                        //ExecuteQuery query = new ExecuteQuery(sql_statement);
-                    } catch (Exception e) {
-                        System.err.println("Failed to query: " + e.getMessage());
-                    }
                 }
+                //insert orders
                 charge += 10;
                 charge += total_quantity * 10;
                 //insert
@@ -313,6 +301,23 @@ class CustomerInterface extends Main {
                     System.err.println("Failed to query: " + e.getMessage());
                 }
 
+                for (Map.Entry<String, Long> entry : isbn_quantity.entrySet()) {
+                    String key = entry.getKey();
+                    Long value = entry.getValue();
+                    //insert ordering
+                    try{
+                        String sql_statement = "INSERT INTO ordering (order_id, isbn, quantity) VALUES(?, ?, ?)";
+                        PreparedStatement statement = conn.prepareStatement(sql_statement);
+                        statement.setLong(1, order_id);
+                        statement.setString(2, key);
+                        statement.setLong(3, value);
+                        statement.executeUpdate();
+                        //ExecuteQuery query = new ExecuteQuery(sql_statement);
+                        } catch (Exception e) {
+                            System.err.println("Failed to query: " + e.getMessage());
+                        }
+                }
+                isbn_quantity.clear();
                 System.out.println("Ordering Finished!");
                 break;
             } else {
@@ -337,7 +342,7 @@ class CustomerInterface extends Main {
                 if (isbn_check == 0L) {
                     System.out.println("We do not have this book. Please choose another book.");
                     System.out.println("Please enter the book's ISBN:");
-                    choice = scanner.nextLine();
+                    choice = scanner.next();
                     break;
                 }
                 //check if book is avaible
@@ -359,33 +364,41 @@ class CustomerInterface extends Main {
                 if (no_of_copies == 0L) {
                     System.out.println("The book is out of stock. Please choose another book.");
                     System.out.println("Please enter the book's ISBN:");
-                    choice = scanner.nextLine();
+                    choice = scanner.next();
                     break;
                 } else {
                     // get quantity
-                    System.out.println("Please enter the quantity of the order: ");
-                    long quantity = scanner.nextLong();
-                    long num_order;
-                    //gather same book
-                    if (isbn_quantity.containsKey(isbn)) {
-                        num_order = isbn_quantity.get(isbn);
-                    } else {
-                        num_order = 0;
+                    long quantity = 0;
+                    boolean validInput = false;
+                    while (!validInput){
+                        try{
+                            System.out.println("Please enter the quantity of the order: ");
+                            quantity = scanner.nextLong();
+                            validInput = true;
+                        } catch(InputMismatchException e){
+                            System.out.println("Invalid Input.");
+                            scanner.nextLine();
+                        }
                     }
-                    while (no_of_copies < (quantity + num_order)) { //check if copies are enough
-                        System.out.printf("You have already ordered %d copies.%n", num_order);
+
+                    while (no_of_copies < quantity) { //check if copies are enough
+                        System.out.printf("You have already ordered %d copies.%n", quantity);
                         System.out.printf("There are only in total %d copies. %n", no_of_copies);
                         System.out.println("Please enter the quantity of the order again: ");
                         quantity = scanner.nextLong();
                     }
-                    quantity += num_order;
+                    //gather same book
+                    if (isbn_quantity.containsKey(isbn)) {
+                        System.out.printf("Quantity updated to %d copies.%n", quantity);
+                    }
                     //add to dict
                     isbn_quantity.put(isbn, quantity);
                 }
 
             }
             System.out.println("Please enter the book's ISBN:");
-            choice = scanner.nextLine();
+            choice = scanner.next();
+            //System.out.println(choice);
         }
     }
 
