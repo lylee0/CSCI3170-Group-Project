@@ -1,3 +1,5 @@
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -141,19 +143,25 @@ class CustomerInterface extends Main {
         String customer_id = scanner.nextLine();
         // handle wrong customer id
         while (customer_id != null) {
-            String sql_statement = String.format("SELECT c.customer_id FROM customer c WHERE c.customer_id = %s", customer_id);
-            ExecuteQuery query = new ExecuteQuery(sql_statement);
             String id_check = "";
             try {
-                while (query.rs.next()) {
-                    id_check = query.rs.getString(1);
+                //String sql_statement = String.format("SELECT c.customer_id FROM customer c WHERE c.customer_id = %s", customer_id);
+                String sql_statement = "SELECT c.customer_id FROM customer c WHERE c.customer_id = ?";
+                PreparedStatement statement = conn.prepareStatement(sql_statement);
+                statement.setString(1, customer_id);
+                ResultSet resultSet = statement.executeQuery();
+                //ExecuteQuery query = new ExecuteQuery(sql_statement);
+                while (resultSet.next()) {
+                    id_check = resultSet.getString(1);
+                    System.out.println(customer_id);
+                    System.out.println(id_check);
                 }
-                query.close();
-            } catch (SQLException e) {
-                System.out.print("Invalid SQL Query.");
+                resultSet.close();
+            } catch (Exception e) {
+                System.err.println("Failed to query: " + e.getMessage());
             }
 
-            if (id_check == customer_id) {
+            if (id_check.equals(customer_id)) {
                 break;
             } else {
                 System.out.print("Wrong customer ID.");
@@ -203,16 +211,18 @@ class CustomerInterface extends Main {
                 //o_date == system date
                 Integer o_date = system_date.value;
                 //find order id, greatest id + 1
-                String sql_statement = "SELECT MAX(order_id) FROM orders";
-                ExecuteQuery query = new ExecuteQuery(sql_statement);
                 long order_id = 0;
                 try {
-                    while (query.rs.next()) {
-                        order_id = query.rs.getLong(1);
+                    String sql_statement = "SELECT MAX(order_id) FROM orders";
+                    PreparedStatement statement = conn.prepareStatement(sql_statement);
+                    ResultSet resultSet = statement.executeQuery();
+                    //ExecuteQuery query = new ExecuteQuery(sql_statement);
+                    while (resultSet.next()) {
+                        order_id = resultSet.getLong(1);
                     }
-                    query.close();
-                } catch (SQLException e) {
-                    System.out.print("Invalid SQL Query.");
+                    resultSet.close();
+                } catch (Exception e) {
+                    System.err.println("Failed to query: " + e.getMessage());
                 }
 
                 if (order_id == 0) {
@@ -229,46 +239,81 @@ class CustomerInterface extends Main {
                 for (Map.Entry<String, Long> entry : isbn_quantity.entrySet()) {
                     String key = entry.getKey();
                     Long value = entry.getValue();
-                    sql_statement = String.format("SELECT b.unit_price FROM book b WHERE b.isbn = %s", key);
-                    query = new ExecuteQuery(sql_statement);
                     long unit_price = 0;
                     try {
-                        while (query.rs.next()) {
-                            unit_price = query.rs.getLong(1);
+                        String sql_statement = "SELECT b.unit_price FROM book b WHERE b.isbn = ?";
+                        PreparedStatement statement = conn.prepareStatement(sql_statement);
+                        statement.setString(1, key);
+                        ResultSet resultSet = statement.executeQuery();
+                        //ExecuteQuery query = new ExecuteQuery(sql_statement);
+                        while (resultSet.next()) {
+                            unit_price = resultSet.getLong(1);
                         }
-                        query.close();
-                    } catch (SQLException e) {
-                        System.out.print("Invalid SQL Query.");
+                        resultSet.close();
+                    } catch (Exception e) {
+                        System.err.println("Failed to query: " + e.getMessage());
                     }
                     charge += (unit_price * value);
                     total_quantity += value;
 
                     //get no_of_copies
-                    sql_statement = String.format("SELECT b.no_of_copies FROM book b WHERE b.isbn = %s", key);
-                    query = new ExecuteQuery(sql_statement);
                     long no_of_copies = 0;
                     try {
-                        while (query.rs.next()) {
-                            no_of_copies = query.rs.getLong(1);
+                        String sql_statement = "SELECT b.no_of_copies FROM book b WHERE b.isbn = ?";
+                        PreparedStatement statement = conn.prepareStatement(sql_statement);
+                        statement.setString(1, key);
+                        ResultSet resultSet = statement.executeQuery();
+                        //ExecuteQuery query = new ExecuteQuery(sql_statement);
+                        while (resultSet.next()) {
+                            no_of_copies = resultSet.getLong(1);
                         }
-                        query.close();
-                    } catch (SQLException e) {
-                        System.out.print("Invalid SQL Query.");
+                        resultSet.close();
+                    } catch (Exception e) {
+                        System.err.println("Failed to query: " + e.getMessage());
                     }
                     //modify no_of_copies
                     no_of_copies += value;
-                    sql_statement = String.format("UPDATE book SET no_of_copies = %d WHERE isbn = %s", no_of_copies, key);
-                    query = new ExecuteQuery(sql_statement);
+                    try{
+                        String sql_statement ="UPDATE book SET no_of_copies = ? WHERE isbn = ?";
+                        PreparedStatement statement = conn.prepareStatement(sql_statement);
+                        statement.setLong(1, no_of_copies);
+                        statement.setString(2, key);
+                        statement.executeUpdate();
+                        //ExecuteQuery query = new ExecuteQuery(sql_statement);
+                    } catch (Exception e) {
+                        System.err.println("Failed to query: " + e.getMessage());
+                    }
 
                     //insert ordering
-                    sql_statement = String.format("INSERT INTO ordering (order_id, isbn, quantity) VALUES(%d, %s, %d)", order_id, key, value);
-                    query = new ExecuteQuery(sql_statement);
+                    try{
+                        String sql_statement = "INSERT INTO ordering (order_id, isbn, quantity) VALUES(?, ?, ?)";
+                        PreparedStatement statement = conn.prepareStatement(sql_statement);
+                        statement.setLong(1, order_id);
+                        statement.setString(2, key);
+                        statement.setLong(3, value);
+                        statement.executeUpdate();
+                        //ExecuteQuery query = new ExecuteQuery(sql_statement);
+                    } catch (Exception e) {
+                        System.err.println("Failed to query: " + e.getMessage());
+                    }
                 }
                 charge += 10;
                 charge += total_quantity * 10;
                 //insert
-                sql_statement = String.format("INSERT INTO orders (order_id, o_date, shipping_status, charge, customer_id) VALUES(%d, %d, %s, %d, %s)", order_id, o_date, shipping_status, charge, customer_id);
-                query = new ExecuteQuery(sql_statement);
+                try{
+                    String sql_statement = "INSERT INTO orders (order_id, o_date, shipping_status, charge, customer_id) VALUES(?, ?, ?, ?, ?)";
+                    PreparedStatement statement = conn.prepareStatement(sql_statement);
+                    statement.setLong(1, order_id);
+                    statement.setInt(2, o_date);
+                    statement.setString(3, shipping_status);
+                    statement.setLong(4, charge);
+                    statement.setString(5, customer_id);
+                    statement.executeUpdate();
+                    //ExecuteQuery resultSet = statement.executeQuery();
+                    //ExecuteQuery query = new ExecuteQuery(sql_statement);
+                } catch (Exception e) {
+                    System.err.println("Failed to query: " + e.getMessage());
+                }
 
                 System.out.println("Ordering Finished!");
                 break;
@@ -276,16 +321,19 @@ class CustomerInterface extends Main {
                 choice = choice.replace("-", "");
                 String isbn = choice;
                 //check if book exist
-                String sql_statement = String.format("SELECT b.isbn FROM book b WHERE b.isbn = '%s'", isbn);
-                ExecuteQuery query = new ExecuteQuery(sql_statement);
                 long isbn_check = 0;
                 try {
-                    while (query.rs.next()) {
-                        isbn_check = query.rs.getLong(1);
+                    String sql_statement = "SELECT b.isbn FROM book b WHERE b.isbn = ?";
+                    PreparedStatement statement = conn.prepareStatement(sql_statement);
+                    statement.setString(1, isbn);
+                    ResultSet resultSet = statement.executeQuery();
+                    //ExecuteQuery query = new ExecuteQuery(sql_statement);
+                    while (resultSet.next()) {
+                        isbn_check = resultSet.getLong(1);
                     }
-                    query.close();
-                } catch (SQLException e) {
-                    System.out.print("Invalid SQL Query.");
+                    resultSet.close();
+                } catch (Exception e) {
+                    System.err.println("Failed to query: " + e.getMessage());
                 }
                 //if book does not exit, get input, break
                 if (isbn_check == 0) {
@@ -295,17 +343,19 @@ class CustomerInterface extends Main {
                     break;
                 }
                 //check if book is avaible
-                sql_statement = String.format("SELECT b.no_of_copies FROM book b WHERE b.isbn = '%s'", isbn);
-                // @formatter:on
-                query = new ExecuteQuery(sql_statement);
                 long no_of_copies = 0;
                 try {
-                    while (query.rs.next()) {
-                        no_of_copies = query.rs.getLong(1);
+                    String sql_statement = "SELECT b.no_of_copies FROM book b WHERE b.isbn = ?";
+                    PreparedStatement statement = conn.prepareStatement(sql_statement);
+                    statement.setString(1, isbn);
+                    ResultSet resultSet = statement.executeQuery();
+                    //ExecuteQuery  query = new ExecuteQuery(sql_statement);
+                    while (resultSet.next()) {
+                        no_of_copies = resultSet.getLong(1);
                     }
-                    query.close();
-                } catch (SQLException e) {
-                    System.out.print("Invalid SQL Query.");
+                    resultSet.close();
+                } catch (Exception e) {
+                    System.err.println("Failed to query: " + e.getMessage());
                 }
                 //if the book is out of stock, get another input
                 if (no_of_copies == 0) {
@@ -354,18 +404,21 @@ class CustomerInterface extends Main {
                 return;
             }
             order_id = Long.parseLong(input);
-            String sql_statement = String.format("SELECT o.order_id o.shipping_status FROM orders o WHERE o.order_id = %d", order_id); // not sure
-            ExecuteQuery query = new ExecuteQuery(sql_statement);
             long id_check = 0;
             String status = "";
             try {
-                while (query.rs.next()) {
-                    id_check = query.rs.getLong(1);
-                    status = query.rs.getString(2);
+                String sql_statement = "SELECT o.order_id o.shipping_status FROM orders o WHERE o.order_id = ?"; // not sure
+                PreparedStatement statement = conn.prepareStatement(sql_statement);
+                statement.setLong(1, order_id);
+                ResultSet resultSet = statement.executeQuery();
+                //ExecuteQuery query = new ExecuteQuery(sql_statement);
+                while (resultSet.next()) {
+                    id_check = resultSet.getLong(1);
+                    status = resultSet.getString(2);
                 }
-                query.close();
-            } catch (SQLException e) {
-                System.out.print("Invalid SQL Query.");
+                resultSet.close();
+            } catch (Exception e) {
+                System.err.println("Failed to query: " + e.getMessage());
             }
             if (id_check == order_id) {
                 if (status == "Y") {
@@ -382,22 +435,25 @@ class CustomerInterface extends Main {
             }
         }
 
-        String sql_statement = String.format("SELECT o.order_id, o.shipping_status, o.charge, o.customer_id FROM orders o WHERE o.order_id = %d", order_id); // not sure
-        ExecuteQuery query = new ExecuteQuery(sql_statement);
         //find order
         String shipping_status = "";
         int charge = 0;
         String customer_id = "";
         try {
-            while (query.rs.next()) {
-                order_id = query.rs.getLong(1);
-                shipping_status = query.rs.getString(2);
-                charge = query.rs.getInt(3);
-                customer_id = query.rs.getString(4);
+            String sql_statement = "SELECT o.order_id, o.shipping_status, o.charge, o.customer_id FROM orders o WHERE o.order_id = ?"; // not sure
+            PreparedStatement statement = conn.prepareStatement(sql_statement);
+            statement.setLong(1, order_id);
+            ResultSet resultSet = statement.executeQuery();
+            //ExecuteQuery query = new ExecuteQuery(sql_statement);
+            while (resultSet.next()) {
+                order_id = resultSet.getLong(1);
+                shipping_status = resultSet.getString(2);
+                charge = resultSet.getInt(3);
+                customer_id = resultSet.getString(4);
             }
-            query.close();
-        } catch (SQLException e) {
-            System.out.print("Invalid SQL Query.");
+            resultSet.close();
+        } catch (Exception e) {
+            System.err.println("Failed to query: " + e.getMessage());
         }
         //find ordering
         //get list of books ordered
@@ -405,24 +461,27 @@ class CustomerInterface extends Main {
         Map<Integer, List<Long>> book_dict = new LinkedHashMap<>();
         List<Long> book_ordered = new ArrayList<>();
         //List<List<Long>> book_ordered = new ArrayList<>();
-        sql_statement = String.format("SELECT o.isbn, o.quantity FROM ordering o WHERE o.order_id = %d", order_id);
-        query = new ExecuteQuery(sql_statement);
         int index = 0;
         long isbn = 0;
         long quantity = 0;
         try {
-            while (query.rs.next()) {
+            String sql_statement = "SELECT o.isbn, o.quantity FROM ordering o WHERE o.order_id = ?";
+            PreparedStatement statement = conn.prepareStatement(sql_statement);
+            statement.setLong(1, order_id);
+            ResultSet resultSet = statement.executeQuery();
+            //ExecuteQuery query = new ExecuteQuery(sql_statement);
+            while (resultSet.next()) {
                 index += 1;
-                isbn = query.rs.getLong(1);
-                quantity = query.rs.getLong(2);
+                isbn = resultSet.getLong(1);
+                quantity = resultSet.getLong(2);
                 book_ordered.clear();
                 book_ordered.add(isbn);
                 book_ordered.add(quantity);
                 book_dict.put(index, book_ordered);
             }
-            query.close();
-        } catch (SQLException e) {
-            System.out.print("Invalid SQL Query.");
+            resultSet.close();
+        } catch (Exception e) {
+            System.err.println("Failed to query: " + e.getMessage());
         }
 
         System.out.printf("order_id: %s shipping: %s charge: %d customer_id: %s", order_id, shipping_status, charge, customer_id);
@@ -474,17 +533,19 @@ class CustomerInterface extends Main {
                 }
                 quan_alter = scanner.nextLong();
             }*/
-
-            sql_statement = String.format("SELECT b.no_of_copies, b.unit_price FROM book b WHERE b.isbn = %d", isbn);
-            query = new ExecuteQuery(sql_statement);
             try {
-                while (query.rs.next()) {
-                    copies = query.rs.getLong(1);
-                    unit_price = query.rs.getLong(2);
+                String sql_statement = "SELECT b.no_of_copies, b.unit_price FROM book b WHERE b.isbn = ?";
+                PreparedStatement statement = conn.prepareStatement(sql_statement);
+                statement.setLong(1, isbn);
+                ResultSet resultSet = statement.executeQuery();
+                //ExecuteQuery query = new ExecuteQuery(sql_statement);
+                while (resultSet.next()) {
+                    copies = resultSet.getLong(1);
+                    unit_price = resultSet.getLong(2);
                 }
-                query.close();
-            } catch (SQLException e) {
-                System.out.print("Invalid SQL Query.");
+                resultSet.close();
+            } catch (Exception e) {
+                System.err.println("Failed to query: " + e.getMessage());
             }
             if (input == "add") {
                 // check if enough copy
@@ -533,15 +594,41 @@ class CustomerInterface extends Main {
         new_charge = new_charge + (unit_price + 10) * new_quantity + 10;
         Integer o_date = system_date.value;
         //order: order_id, o_date, shipping_status, charge, customer_id
-        sql_statement = String.format("UPDATE order SET o_date = %d, charge = %d WHERE order_id = %d", o_date, new_charge, order_id);
-        query = new ExecuteQuery(sql_statement);
+        try{
+            String sql_statement = "UPDATE order SET o_date = ?, charge = ? WHERE order_id = ?";
+            PreparedStatement statement = conn.prepareStatement(sql_statement);
+            statement.setInt(1, o_date);
+            statement.setLong(1, new_charge);
+            statement.setLong(1, order_id);
+            //ResultSet resultSet = statement.executeQuery();
+            statement.executeUpdate();
+            //ExecuteQuery query = new ExecuteQuery(sql_statement);
+        } catch (Exception e) {
+            System.err.println("Failed to query: " + e.getMessage());
+        }
         //ordering: order_id, isbn, quantity
-        sql_statement = String.format("UPDATE ordering SET quantity = %d WHERE order_id = %d", new_quantity, order_id);
-        query = new ExecuteQuery(sql_statement);
+        try{
+            String sql_statement = "UPDATE ordering SET quantity = ? WHERE order_id = ?";
+            PreparedStatement statement = conn.prepareStatement(sql_statement);
+            statement.setLong(1, new_quantity);
+            statement.setLong(1, order_id);
+            statement.executeUpdate();
+            //ExecuteQuery query = new ExecuteQuery(statement);
+        } catch (Exception e) {
+            System.err.println("Failed to query: " + e.getMessage());
+        }
         //book: isbn, title, unit_price, no_of_copies
-        sql_statement = String.format("UPDATE book SET no_of_copies = %d WHERE isbn = %d", new_copies, isbn);
-        query = new ExecuteQuery(sql_statement);
-
+        try{
+            String sql_statement = "UPDATE book SET no_of_copies = ? WHERE isbn = ?";
+            PreparedStatement statement = conn.prepareStatement(sql_statement);
+            statement.setLong(1, new_copies);
+            statement.setLong(2, isbn);
+            statement.executeUpdate();
+            //ExecuteQuery query = new ExecuteQuery(statement);
+        } catch (Exception e) {
+            System.err.println("Failed to query: " + e.getMessage());
+        }
+        
         System.out.println("Update is ok!");
         System.out.println("Update done!!");
         System.out.println("Updated charge");
@@ -559,7 +646,7 @@ class CustomerInterface extends Main {
     }
 
     void order_query() {
-        int sys_date = system_date.value;
+        Integer sys_date = system_date.value;
         String system_date_str = date_int_to_str(sys_date);
         int system_year = Integer.parseInt(system_date_str.substring(0, 4));
 
@@ -569,16 +656,19 @@ class CustomerInterface extends Main {
         //may define a function of checking customer id
         // handle wrong customer id
         while (!customer_id.isEmpty()) {
-            String sql_statement = String.format("select CUSTOMER_ID from CUSTOMER where CUSTOMER_ID = '%s'", customer_id);
-            ExecuteQuery query = new ExecuteQuery(sql_statement);
             String id_check = "";
             try {
-                while (query.rs.next()) {
-                    id_check = query.rs.getString(1);
+                String sql_statement = "SELECT c.customer_id FROM customer c WHERE c.customer_id = ?";
+                PreparedStatement statement = conn.prepareStatement(sql_statement);
+                statement.setString(1, customer_id);
+                ResultSet resultSet = statement.executeQuery();
+                //ExecuteQuery query = new ExecuteQuery(sql_statement);
+                while (resultSet.next()) {
+                    id_check = resultSet.getString(1);
                 }
-                query.close();
-            } catch (SQLException e) {
-                System.out.print("Invalid SQL Query.");
+                resultSet.close();
+            } catch (Exception e) {
+                System.err.println("Failed to query: " + e.getMessage());
             }
 
             if (id_check.equals(customer_id)) {
@@ -611,16 +701,19 @@ class CustomerInterface extends Main {
         //order: order_id, o_date, shipping_status, charge, customer_id
 
         //sort order_id
-        String sql_statement = String.format("select ORDER_ID, O_DATE, SHIPPING_STATUS, CHARGE from ORDERS where CUSTOMER_ID = '%s' order by ORDER_ID", customer_id);
-        ExecuteQuery query = new ExecuteQuery(sql_statement);
         int index = 0;
         try {
-            while (query.rs.next()) {
+            String sql_statement = "SELECT order_id, o_date, shipping status, charge FROM order WHERE customer_id = ? ORDER BY order_id ASC";
+            PreparedStatement statement = conn.prepareStatement(sql_statement);
+            statement.setString(1, customer_id);
+            ResultSet resultSet = statement.executeQuery();
+            //ExecuteQuery query = new ExecuteQuery(sql_statement);
+            while (resultSet.next()) {
                 index++;
-                long order_id = query.rs.getLong(1);
-                int o_date = query.rs.getInt(2);
-                String shipping_status = query.rs.getString(3);
-                long charge = query.rs.getLong(4);
+                long order_id = resultSet.getLong(1);
+                int o_date = resultSet.getInt(2);
+                String shipping_status = resultSet.getString(3);
+                long charge = resultSet.getLong(4);
 
                 String date = date_int_to_str(o_date);
                 int order_year = Integer.parseInt(date.substring(0, 4));
@@ -632,11 +725,12 @@ class CustomerInterface extends Main {
                     System.out.printf("shipping status : %s\n%n", shipping_status);
                 }
             }
-            query.close();
-        } catch (SQLException e) {
-            System.out.print("Invalid SQL Query.");
+            resultSet.close();
+        } catch (Exception e) {
+            System.err.println("Failed to query: " + e.getMessage());
         }
         System.out.println("There are no more records");
+        scanner.close();
     }
 
     /* Must set 'public' since this method is 'public' in the superclass */
