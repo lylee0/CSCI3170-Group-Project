@@ -559,7 +559,7 @@ class CustomerInterface extends Main {
     }
 
     void order_query() {
-        Integer sys_date = system_date.value;
+        int sys_date = system_date.value;
         String system_date_str = date_int_to_str(sys_date);
         int system_year = Integer.parseInt(system_date_str.substring(0, 4));
 
@@ -568,8 +568,8 @@ class CustomerInterface extends Main {
         String customer_id = scanner.nextLine();
         //may define a function of checking customer id
         // handle wrong customer id
-        while (customer_id != null) {
-            String sql_statement = String.format("SELECT c.customer_id FROM customer c WHERE c.customer_id = %s", customer_id);
+        while (!customer_id.isEmpty()) {
+            String sql_statement = String.format("select CUSTOMER_ID from CUSTOMER where CUSTOMER_ID = '%s'", customer_id);
             ExecuteQuery query = new ExecuteQuery(sql_statement);
             String id_check = "";
             try {
@@ -581,7 +581,7 @@ class CustomerInterface extends Main {
                 System.out.print("Invalid SQL Query.");
             }
 
-            if (id_check == customer_id) {
+            if (id_check.equals(customer_id)) {
                 break;
             } else {
                 System.out.print("Wrong customer ID.");
@@ -590,16 +590,16 @@ class CustomerInterface extends Main {
             }
         }
         System.out.print("Please Input the Year: ");
-        int year;
-        year = scanner.nextInt();
-        /* while(year != 0){
+        String year_str = scanner.nextLine();
+        int year = 0;
+        while (!year_str.isEmpty()) {
             //check if it is year
             try {
-                int number = Integer.parseInt(year);
-                if ((year <= system_year) && (year >= 1000)){
+                year = Integer.parseInt(year_str);
+                if ((year <= system_year) && (year >= 1000)) {
                     break;
-                }
-                else{
+                } else {
+                    System.out.printf("%d %d\n", year, system_year);
                     System.out.println("Invalid year.");
                     System.out.println("Please Input the Year again: ");
                 }
@@ -607,12 +607,12 @@ class CustomerInterface extends Main {
                 System.out.println("Invalid year.");
                 System.out.println("Please Input the Year again: ");
             }
-            year = scanner.nextLine();
-        } */
+            year_str = scanner.nextLine();
+        }
         //order: order_id, o_date, shipping_status, charge, customer_id
 
         //sort order_id
-        String sql_statement = String.format("SELECT order_id, o_date, shipping status, charge FROM order WHERE customer_id = %s ORDER BY order_id ASC", customer_id);
+        String sql_statement = String.format("select ORDER_ID, O_DATE, SHIPPING_STATUS, CHARGE from ORDERS where CUSTOMER_ID = '%s' order by ORDER_ID", customer_id);
         ExecuteQuery query = new ExecuteQuery(sql_statement);
         int index = 0;
         try {
@@ -638,7 +638,6 @@ class CustomerInterface extends Main {
             System.out.print("Invalid SQL Query.");
         }
         System.out.println("There are no more records");
-        scanner.close();
     }
 
     /* Must set 'public' since this method is 'public' in the superclass */
