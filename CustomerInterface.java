@@ -599,7 +599,6 @@ class CustomerInterface extends Main {
                 if ((year <= system_year) && (year >= 1000)) {
                     break;
                 } else {
-                    System.out.printf("%d %d\n", year, system_year);
                     System.out.println("Invalid year.");
                     System.out.println("Please Input the Year again: ");
                 }
