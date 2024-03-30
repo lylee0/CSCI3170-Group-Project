@@ -21,3 +21,5 @@ Checklist:
         - [ ] N most popular book query
         - [x] Back to main menu
 - [ ] Error handling
+
+javac -cp .:/path/to/jdbc-driver.jar *.java
