@@ -1,6 +1,10 @@
 # CSCI3170-Group-Project
 ## Book Ordering System
 
+```shell
+javac -cp ".:./ojdbc7.jar" *.java && java -cp ".:./ojdbc7.jar" Main
+```
+
 Checklist:
 - [ ] Main menu
     - [x] System interface
@@ -21,6 +25,3 @@ Checklist:
         - [ ] N most popular book query
         - [x] Back to main menu
 - [ ] Error handling
-
-javac -cp .:/path/to/jdbc-driver.jar *.java
-javac -encoding UTF-8 -cp .ojdbc7.jar *.java
