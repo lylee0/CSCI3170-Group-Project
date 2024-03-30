@@ -1,6 +1,6 @@
 all: Main.class
 
-main.class:
+Main.class:
 	javac -encoding UTF-8 -cp .ojdbc7.jar *.java 
 
 run:
