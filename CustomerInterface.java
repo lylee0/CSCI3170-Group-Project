@@ -150,7 +150,7 @@ class CustomerInterface extends Main {
                 while (resultSet.next()) {
                     id_check = resultSet.getString(1);
                 }
-                resultSet.close();
+                statement.close();
             } catch (Exception e) {
                 System.err.println("Failed to query: " + e.getMessage());
             }
@@ -169,11 +169,10 @@ class CustomerInterface extends Main {
 
         System.out.println(">> Input ISBN and then the quantity.");
         System.out.println(">> You can press 'L' to see ordered list, or 'F' to finish ordering.");
-        System.out.println("Please enter the book's ISBN:");
-        String choice = scanner.next();
-
         // create list of isbn and quantity
-        while (!choice.isEmpty()) {
+        while (true) {
+            System.out.println("Please enter the book's ISBN:");
+            String choice = scanner.next();
             if (choice.equals("L")) {
                 // print isbn and quantity
                 System.out.println("ISBN            Number:");
@@ -217,7 +216,7 @@ class CustomerInterface extends Main {
                     while (resultSet.next()) {
                         order_id = resultSet.getLong(1);
                     }
-                    resultSet.close();
+                    statement.close();
                 } catch (Exception e) {
                     System.err.println("Failed to query: " + e.getMessage());
                 }
@@ -246,7 +245,7 @@ class CustomerInterface extends Main {
                         while (resultSet.next()) {
                             unit_price = resultSet.getLong(1);
                         }
-                        resultSet.close();
+                        statement.close();
                     } catch (Exception e) {
                         System.err.println("Failed to query: " + e.getMessage());
                     }
@@ -264,7 +263,7 @@ class CustomerInterface extends Main {
                         while (resultSet.next()) {
                             no_of_copies = resultSet.getLong(1);
                         }
-                        resultSet.close();
+                        statement.close();
                     } catch (Exception e) {
                         System.err.println("Failed to query: " + e.getMessage());
                     }
@@ -276,6 +275,7 @@ class CustomerInterface extends Main {
                         statement.setLong(1, no_of_copies);
                         statement.setString(2, key);
                         statement.executeUpdate();
+                        statement.close();
                         //ExecuteQuery query = new ExecuteQuery(sql_statement);
                     } catch (Exception e) {
                         System.err.println("Failed to query: " + e.getMessage());
@@ -295,6 +295,7 @@ class CustomerInterface extends Main {
                     statement.setLong(4, charge);
                     statement.setString(5, customer_id);
                     statement.executeUpdate();
+                    statement.close();
                     //ExecuteQuery resultSet = statement.executeQuery();
                     //ExecuteQuery query = new ExecuteQuery(sql_statement);
                 } catch (Exception e) {
@@ -312,6 +313,7 @@ class CustomerInterface extends Main {
                         statement.setString(2, key);
                         statement.setLong(3, value);
                         statement.executeUpdate();
+                        statement.close();
                         //ExecuteQuery query = new ExecuteQuery(sql_statement);
                         } catch (Exception e) {
                             System.err.println("Failed to query: " + e.getMessage());
@@ -321,10 +323,34 @@ class CustomerInterface extends Main {
                 System.out.println("Ordering Finished!");
                 break;
             } else {
+                if (choice.length() != 13) {
+                    System.out.println("ISBN should have 13 digits.");
+                    continue;
+                }
+                boolean test = false;
+                for (int i = 0; i < choice.length(); i++) {
+                    char check = choice.charAt(i);
+                    if ((i != 1) && (i != 6) && (i != 11)) {
+                        if (!Character.isDigit(check)){
+                            test = true;
+                            System.out.println("Invalid ISBN");
+                            break;
+                        }
+                    } else if ((i == 1) || (i == 6) || (i == 11)){
+                        if (check != '-'){
+                            test = true;
+                            System.out.println("Invalid ISBN");
+                            break;
+                        }
+                    }
+                }
+                if (test == true){
+                    continue;
+                }
                 choice = choice.replace("-", "");
                 String isbn = choice;
                 //check if book exist
-                long isbn_check = 0L;
+                long isbn_check = 0;
                 try {
                     String sql_statement = "SELECT b.isbn FROM book b WHERE b.isbn = ?";
                     PreparedStatement statement = conn.prepareStatement(sql_statement);
@@ -334,19 +360,19 @@ class CustomerInterface extends Main {
                     while (resultSet.next()) {
                         isbn_check = resultSet.getLong(1);
                     }
-                    resultSet.close();
+                    statement.close();
                 } catch (Exception e) {
                     System.err.println("Failed to query: " + e.getMessage());
                 }
                 //if book does not exit, get input, break
-                if (isbn_check == 0L) {
+                if (isbn_check == 0) {
                     System.out.println("We do not have this book. Please choose another book.");
-                    System.out.println("Please enter the book's ISBN:");
-                    choice = scanner.next();
-                    break;
+                    //System.out.println("Please enter the book's ISBN:");
+                    //choice = scanner.next();
+                    continue;
                 }
                 //check if book is avaible
-                long no_of_copies = 0L;
+                long no_of_copies = 0;
                 try {
                     String sql_statement = "SELECT b.no_of_copies FROM book b WHERE b.isbn = ?";
                     PreparedStatement statement = conn.prepareStatement(sql_statement);
@@ -356,16 +382,16 @@ class CustomerInterface extends Main {
                     while (resultSet.next()) {
                         no_of_copies = resultSet.getLong(1);
                     }
-                    resultSet.close();
+                    statement.close();
                 } catch (Exception e) {
                     System.err.println("Failed to query: " + e.getMessage());
                 }
                 //if the book is out of stock, get another input
-                if (no_of_copies == 0L) {
+                if (no_of_copies == 0) {
                     System.out.println("The book is out of stock. Please choose another book.");
-                    System.out.println("Please enter the book's ISBN:");
-                    choice = scanner.next();
-                    break;
+                    //System.out.println("Please enter the book's ISBN:");
+                    //choice = scanner.next();
+                    continue;
                 } else {
                     // get quantity
                     long quantity = 0;
@@ -396,28 +422,48 @@ class CustomerInterface extends Main {
                 }
 
             }
-            System.out.println("Please enter the book's ISBN:");
-            choice = scanner.next();
+            //System.out.println("Please enter the book's ISBN:");
+            //choice = scanner.next();
             //System.out.println(choice);
         }
     }
 
     void order_altering() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Please enter the OrderID that you want to change: ");
-        String input = scanner.nextLine();
         //long order_id = Long.parseLong(input);
         long order_id = 0;
-        while (input != null) {
+        System.out.println("Please enter the OrderID that you want to change: ");
+        while (true) {
+            String input = scanner.nextLine();
             //cancel change
             if (input.equals("E")) {
+                System.out.println("Return to Customer Interface.");
                 return;
             }
+
+            if (input.length() != 8) {
+                System.out.println("OrderID should have 8 digits.");
+                System.out.println("Please enter the OrderID that you want to change again or press E to cancel changes: ");
+                continue;
+            }
+            boolean test = false;
+            for (int i = 0; i < input.length(); i++) {
+                if (!Character.isDigit(input.charAt(i))) {
+                    test = true;
+                    System.out.println("Invalid OrderID.");
+                    System.out.println("Please enter the OrderID that you want to change again or press E to cancel changes: ");
+                    break;
+                }
+            }
+            if (test == true){
+                continue;
+            }
+            
             order_id = Long.parseLong(input);
-            long id_check = 0;
+            long id_check = -1;
             String status = "";
             try {
-                String sql_statement = "SELECT o.order_id o.shipping_status FROM orders o WHERE o.order_id = ?"; // not sure
+                String sql_statement = "SELECT o.order_id, o.shipping_status FROM orders o WHERE o.order_id = ?";
                 PreparedStatement statement = conn.prepareStatement(sql_statement);
                 statement.setLong(1, order_id);
                 ResultSet resultSet = statement.executeQuery();
@@ -426,22 +472,23 @@ class CustomerInterface extends Main {
                     id_check = resultSet.getLong(1);
                     status = resultSet.getString(2);
                 }
-                resultSet.close();
+                statement.close();
             } catch (Exception e) {
                 System.err.println("Failed to query: " + e.getMessage());
             }
             if (id_check == order_id) {
-                if (status == "Y") {
-                    System.out.println("The books in the order are shipped”");
+                if (status.equals("Y")) {
+                    System.out.println("The books in the order are shipped.");
                     System.out.println("Please enter another OrderID or press E to cancel changes: ");
-                    input = scanner.nextLine();
-                } else if (status == "N") {
+                    //input = scanner.nextLine();
+                    continue;
+                } else if (status.equals("N")) {
                     break;
                 }
             } else {
-                System.out.print("Wrong order ID.");
-                System.out.print("Please enter the OrderID that you want to change again or press E to cancel changes: ");
-                input = scanner.nextLine();
+                System.out.println("Wrong order ID.");
+                System.out.println("Please enter the OrderID that you want to change again or press E to cancel changes: ");
+                //input = scanner.nextLine();
             }
         }
 
@@ -461,7 +508,7 @@ class CustomerInterface extends Main {
                 charge = resultSet.getInt(3);
                 customer_id = resultSet.getString(4);
             }
-            resultSet.close();
+            statement.close();
         } catch (Exception e) {
             System.err.println("Failed to query: " + e.getMessage());
         }
@@ -489,21 +536,21 @@ class CustomerInterface extends Main {
                 book_ordered.add(quantity);
                 book_dict.put(index, book_ordered);
             }
-            resultSet.close();
+            statement.close();
         } catch (Exception e) {
             System.err.println("Failed to query: " + e.getMessage());
         }
 
-        System.out.printf("order_id: %s shipping: %s charge: %d customer_id: %s", order_id, shipping_status, charge, customer_id);
+        System.out.printf("order_id: %08d shipping: %s charge: %d customer_id: %s%n", order_id, shipping_status, charge, customer_id);
         for (Map.Entry<Integer, List<Long>> entry : book_dict.entrySet()) {
             Integer key = entry.getKey();
             List<Long> value = entry.getValue();
-            isbn = value.get(1);
+            isbn = value.get(0);
             String isbn_str = isbn_long_to_str(isbn);
-            quantity = value.get(2);
-            System.out.printf("book no: %d ISBN = %s quantity = %d", key, isbn_str, quantity);
+            quantity = value.get(1);
+            System.out.printf("book no: %d ISBN = %s quantity = %d%n", key, isbn_str, quantity);
         }
-        System.out.println("Which book you want to alter (input book no.):\n");
+        System.out.println("Which book you want to alter (input book no.):");
         int book_alter = get_user_choice(book_dict.size());
         //int book_alter = scanner.nextLine();
 
@@ -512,37 +559,41 @@ class CustomerInterface extends Main {
         //}
 
         System.out.println("input add or remove"); //number to be incremented or decremented
-        input = scanner.nextLine();
-        while (input != null) {
+        String input = "";
+        while (true) {
+            input = scanner.nextLine();
             if ((input.equals("add")) || (input.equals("remove"))) {
                 break;
             } else {
                 System.out.println("Wrong input. Please input again.");
                 System.out.println("input add or remove");
-                input = scanner.nextLine();
+                //scanner.nextLine();
             }
         }
 
         System.out.println("Input the number: ");
-        long quan_alter;
-        quan_alter = scanner.nextLong();
+        long quan_alter = -1;
         long copies = 0;
         long unit_price = 0;
         long new_copies = 0;
         long new_quantity = 0;
         List<Long> book;
-        while (quan_alter != 0) {
-            /*while (quan_alter != 0L){
-                //check if integer
+        while (true) {
+            while (true) {
                 try {
-                    long number = Long.parseLong(quan_alter);
-                    break;
-                } catch (NumberFormatException e) {
+                    quan_alter = scanner.nextLong();
+                    if (quan_alter >= 0) {
+                        break;
+                    } else {
+                        System.out.println("Ihe number cannot be a negative number.");
+                        System.out.println("Please input the number again: ");
+                    }
+                } catch (InputMismatchException e) {
                     System.out.println("Input is not an integer.");
                     System.out.println("Please input the number again: ");
+                    scanner.next();
                 }
-                quan_alter = scanner.nextLong();
-            }*/
+            }
             try {
                 String sql_statement = "SELECT b.no_of_copies, b.unit_price FROM book b WHERE b.isbn = ?";
                 PreparedStatement statement = conn.prepareStatement(sql_statement);
@@ -553,22 +604,21 @@ class CustomerInterface extends Main {
                     copies = resultSet.getLong(1);
                     unit_price = resultSet.getLong(2);
                 }
-                resultSet.close();
+                statement.close();
             } catch (Exception e) {
                 System.err.println("Failed to query: " + e.getMessage());
             }
             if (input.equals("add")) {
                 // check if enough copy
                 book = book_dict.get(book_alter);
-                isbn = book.get(1);
-                quantity = book.get(2);
+                isbn = book.get(0);
+                quantity = book.get(1);
                 //isbn_str = isbn_long_to_str(isbn);
 
                 if (copies < quan_alter) {
                     //not enough copies
                     System.out.printf("There are only %d copies available%n", copies);
                     System.out.println("Please enter the number of copies to be added again: ");
-                    quan_alter = scanner.nextLong();
                 } else {
                     //change stock, minus copies - quan_alter
                     new_copies = copies - quan_alter;
@@ -578,12 +628,16 @@ class CustomerInterface extends Main {
             } else if (input.equals("remove")) {
                 //check if greater than or equals to the quantity ordered
                 book = book_dict.get(book_alter);
-                isbn = book.get(1);
-                quantity = book.get(2);
-                if (quantity < quan_alter) {
-                    System.out.printf("You have only order %d of copies.%n", quantity);
+                isbn = book.get(0);
+                quantity = book.get(1);
+                if (quantity == 0){
+                    System.out.println("You did not order this book.");
+                    System.out.println("Order altering fails.");
+                    return;
+                }
+                else if (quantity < quan_alter) {
+                    System.out.printf("You have only order %d copies.%n", quantity);
                     System.out.println("Please enter the number of copies to be removed again: ");
-                    quan_alter = scanner.nextLong();
                 } else {
                     //change stock, copies + quan_alter
                     new_copies = copies + quan_alter;
@@ -600,18 +654,26 @@ class CustomerInterface extends Main {
         book_dict.put(book_alter, book_ordered);
 
         //change stock, order, ordering, charge, date
-        long new_charge = charge - (unit_price + 10) * quantity - 10;
+        long new_charge = 0;
+        if (quantity != 0){
+            new_charge = charge - (unit_price + 10) * quantity - 10;
+        }
         new_charge = new_charge + (unit_price + 10) * new_quantity + 10;
         Integer o_date = system_date.value;
         //order: order_id, o_date, shipping_status, charge, customer_id
+        if (new_quantity == 0){
+            new_charge = 0;
+        }
+
         try{
-            String sql_statement = "UPDATE order SET o_date = ?, charge = ? WHERE order_id = ?";
+            String sql_statement = "UPDATE orders SET o_date = ?, charge = ? WHERE order_id = ?";
             PreparedStatement statement = conn.prepareStatement(sql_statement);
             statement.setInt(1, o_date);
-            statement.setLong(1, new_charge);
-            statement.setLong(1, order_id);
+            statement.setLong(2, new_charge);
+            statement.setLong(3, order_id);
             //ResultSet resultSet = statement.executeQuery();
             statement.executeUpdate();
+            statement.close();
             //ExecuteQuery query = new ExecuteQuery(sql_statement);
         } catch (Exception e) {
             System.err.println("Failed to query: " + e.getMessage());
@@ -621,8 +683,9 @@ class CustomerInterface extends Main {
             String sql_statement = "UPDATE ordering SET quantity = ? WHERE order_id = ?";
             PreparedStatement statement = conn.prepareStatement(sql_statement);
             statement.setLong(1, new_quantity);
-            statement.setLong(1, order_id);
+            statement.setLong(2, order_id);
             statement.executeUpdate();
+            statement.close();
             //ExecuteQuery query = new ExecuteQuery(statement);
         } catch (Exception e) {
             System.err.println("Failed to query: " + e.getMessage());
@@ -634,6 +697,7 @@ class CustomerInterface extends Main {
             statement.setLong(1, new_copies);
             statement.setLong(2, isbn);
             statement.executeUpdate();
+            statement.close();
             //ExecuteQuery query = new ExecuteQuery(statement);
         } catch (Exception e) {
             System.err.println("Failed to query: " + e.getMessage());
@@ -642,13 +706,13 @@ class CustomerInterface extends Main {
         System.out.println("Update is ok!");
         System.out.println("Update done!!");
         System.out.println("Updated charge");
-        System.out.printf("order_id: %s shipping: %s charge: %d customer_id: %s", order_id, shipping_status, new_charge, customer_id);
+        System.out.printf("order_id: %08d shipping: %s charge: %d customer_id: %s%n", order_id, shipping_status, new_charge, customer_id);
         for (Map.Entry<Integer, List<Long>> entry : book_dict.entrySet()) {
             Integer key = entry.getKey();
             List<Long> value = entry.getValue();
-            isbn = value.get(1);
+            isbn = value.get(0);
             String isbn_str = isbn_long_to_str(isbn);
-            quantity = value.get(2);
+            quantity = value.get(1);
             System.out.printf("book no: %d ISBN = %s quantity = %d", key, isbn_str, quantity);
         }
 
@@ -664,7 +728,7 @@ class CustomerInterface extends Main {
         String customer_id = scanner.nextLine();
         //may define a function of checking customer id
         // handle wrong customer id
-        while (!customer_id.isEmpty()) {
+        while (true) { //!customer_id.isEmpty()
             //ExecuteQuery query = new ExecuteQuery(sql_statement);
             String id_check = "";
             try {
@@ -675,7 +739,7 @@ class CustomerInterface extends Main {
                 while (resultSet.next()) {
                     id_check = resultSet.getString(1);
                 }
-                resultSet.close();
+                statement.close();
             } catch (Exception e) {
                 System.err.println("Failed to query: " + e.getMessage());
             }
@@ -691,11 +755,11 @@ class CustomerInterface extends Main {
         System.out.print("Please Input the Year: ");
         String year_str = scanner.nextLine();
         int year = 0;
-        while (!year_str.isEmpty()) {
+        while (true) { //!year_str.isEmpty()
             //check if it is year
             try {
                 year = Integer.parseInt(year_str);
-                if ((year <= system_year) && (year >= 0)) {
+                if ((year >= system_year) && (year >= 0)) {
                     break;
                 } else {
                     System.out.println("Invalid year.");
@@ -707,7 +771,6 @@ class CustomerInterface extends Main {
             }
             year_str = scanner.nextLine();
         }
-        //order: order_id, o_date, shipping_status, charge, customer_id
 
         //sort order_id
         int index = 0;
@@ -733,7 +796,7 @@ class CustomerInterface extends Main {
                     System.out.printf("shipping status : %s\n%n", shipping_status);
                 }
             }
-            resultSet.close();
+            statement.close();
         } catch (Exception e) {
             System.err.println("Failed to query: " + e.getMessage());
         }
