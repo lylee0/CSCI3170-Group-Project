@@ -13,11 +13,11 @@ Checklist:
         - [x] Insert data
         - [x] Set system date
         - [x] Back to main menu
-    - [ ] Customer interface
+    - [x] Customer interface
         - [x] Book search
-        - [ ] Order creation
-        - [ ] Order alerting
-        - [ ] Order query
+        - [x] Order creation
+        - [x] Order alerting
+        - [x] Order query
         - [x] Back to main menu
     - [ ] Bookstore interface
         - [ ] Order update
