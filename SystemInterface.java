@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.*;
+import java.time.LocalDate;
 
 class SystemInterface extends Main {
     // @formatter:off
@@ -174,31 +175,55 @@ class SystemInterface extends Main {
     }
 
     void set_system_date() {
-        System.out.print("Please input the date (YYYYMMDD): ");
-
-        Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
-        while (!verify_date_str(input)) {
-            System.out.print("Invalid input. Please try again: ");
-            input = scanner.nextLine();
-        }
-
-        // Update system date
-        system_date.value = date_str_to_int(input);
-
+        String latest_order_date = "";
+        int latest_year = 0;
+        int latest_month = 0;
+        int latest_day = 0;
+        int latest_order_date_int = 0;
         // Get latest date in orders
         try {
             ExecuteQuery query = new ExecuteQuery("SELECT MAX(o_date) FROM orders");
             query.rs.next();  // Move the cursor to the 1st row of the result set
-            int latest_order_date = query.rs.getInt(1);  // 0 if the table is empty
+            latest_order_date = query.rs.getString(1);  // 0 if the table is empty
             query.close();
-
+            latest_year = Integer.parseInt(latest_order_date.substring(0, 4));
+            latest_month = Integer.parseInt(latest_order_date.substring(4, 6));
+            latest_day = Integer.parseInt(latest_order_date.substring(6, 8));
+            latest_order_date_int = Integer.parseInt(latest_order_date);
             // Print the date only if query is successful
-            System.out.println("Latest date in orders: " + date_int_to_str(latest_order_date));
         } catch (Exception e) {
-            System.err.println("Failed to get latest order date: " + e.getMessage());
+            latest_order_date = "00000000";
+            latest_order_date_int = Integer.parseInt(latest_order_date);
+            //System.err.println("Failed to get latest order date: " + e.getMessage());
         }
 
+        System.out.print("Please input the date (YYYYMMDD): ");
+
+        Scanner scanner = new Scanner(System.in);
+        
+        String input = "";
+        while (true) {
+            input = scanner.nextLine();
+            try {
+                int year = Integer.parseInt(input.substring(0, 4));
+                int month = Integer.parseInt(input.substring(4, 6));
+                int day = Integer.parseInt(input.substring(6));
+                if ((year < latest_year) || ((year == latest_year) && (month < latest_month)) || ((year == latest_year) && (month == latest_month) && (day < latest_day))){
+                    System.out.println("Latest date in orders: " + date_int_to_str(latest_order_date_int));
+                    System.out.print("Invalid input. Please try again: ");
+                    continue;
+                }
+                // noinspection ResultOfMethodCallIgnored
+                LocalDate.of(year, month, day);
+                break;
+            } catch (Exception e) {
+                System.out.print("Invalid input. Please try again: ");
+                continue;
+            }
+        }
+        System.out.println("Latest date in orders: " + date_int_to_str(latest_order_date_int));
+        // Update system date
+        system_date.value = date_str_to_int(input);
         // Print current system date
         System.out.println("Today is " + date_int_to_str(system_date.value));
     }
