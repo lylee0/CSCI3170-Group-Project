@@ -230,7 +230,7 @@ class CustomerInterface extends Main {
                 //o_date == system date
                 int o_date = system_date.value;
                 //find order id, greatest id + 1
-                long order_id = 0;
+                long order_id = -1;
                 try {
                     String sql_statement = "SELECT MAX(order_id) FROM orders";
                     PreparedStatement statement = conn.prepareStatement(sql_statement);
@@ -243,12 +243,11 @@ class CustomerInterface extends Main {
                     System.err.println("Failed to query: " + e.getMessage());
                 }
 
-                if (order_id == 0) {
-                    // need to change to string??? or formatting
+                if (order_id == -1) { // there is no order
+                    order_id = 0;
                 } else {
                     order_id += 1;
                 }
-                //shipping status == "N"
                 String shipping_status = "N";
                 //find charge, get book price * quantity, sum up
                 //shipping charge = total quantity * 10 + 10
@@ -753,14 +752,15 @@ class CustomerInterface extends Main {
         System.out.print("Please Input the Year: ");
         String year_str;
         int year;
-        while (true) { //!year_str.isEmpty()
+        while (true) {
             //check if it is year
             year_str = scanner.nextLine();
             try {
                 if (year_str.length() != 4) {
-                    throw new Exception("Expected input length is 4.");
+                    System.out.println("Year should have 4 digits.");
+                    System.out.println("Please Input the Year again: ");
+                    continue;
                 }
-
                 year = Integer.parseInt(year_str);
                 if ((year <= system_year) && (year >= 0)) {
                     break;
