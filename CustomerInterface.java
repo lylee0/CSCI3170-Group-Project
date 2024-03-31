@@ -759,7 +759,7 @@ class CustomerInterface extends Main {
             //check if it is year
             try {
                 year = Integer.parseInt(year_str);
-                if ((year >= system_year) && (year >= 0)) {
+                if ((year <= system_year) && (year >= 0)) {
                     break;
                 } else {
                     System.out.println("Invalid year.");
