@@ -35,13 +35,41 @@ class CustomerInterface extends Main {
 
         String where_stmt_general;
         String where_stmt_exact_match = null;  // For displaying exact matches of 'title' and 'author_name' first
-
+        String input = "";
         if (choice == 1) {
             // Query by ISBN
-            System.out.print("Input the ISBN: ");
-
             Scanner scanner = new Scanner(System.in);
-            String isbn = scanner.nextLine().replace("-", "");
+            while (true){
+                System.out.print("Input the ISBN(X-XXXX-XXXX-X): ");
+                input = scanner.nextLine();
+                boolean test = false;
+                if (input.length() != 13) {
+                    System.out.println("ISBN should have 13 digits(X-XXXX-XXXX-X).");
+                    continue;
+                }
+                for (int i = 0; i < input.length(); i++) {
+                    char check = input.charAt(i);
+                    if ((i != 1) && (i != 6) && (i != 11)) {
+                        if (!Character.isDigit(check)){
+                            test = true;
+                            System.out.println("Invalid ISBN");
+                            break;
+                        }
+                    } else if ((i == 1) || (i == 6) || (i == 11)){
+                        if (check != '-'){
+                            test = true;
+                            System.out.println("Invalid ISBN");
+                            break;
+                        }
+                    }
+                }
+                if (test == true){
+                    continue;
+                } else {
+                    break;
+                }
+            }
+            String isbn = input.replace("-", "");
 
             where_stmt_general = String.format("WHERE (b.isbn = ba.isbn) and (b.isbn = %s)", isbn);
         } else if (choice == 2) {
@@ -94,14 +122,15 @@ class CustomerInterface extends Main {
                         where_stmt,
                         "ORDER BY title, b.isbn, author_name");
                 // @formatter:on
-
-                ExecuteQuery query = new ExecuteQuery(sql_statement);
-                while (query.rs.next()) {
-                    long isbn = query.rs.getLong(1);
-                    String title = query.rs.getString(2);
-                    int unit_price = query.rs.getInt(3);
-                    int no_of_copies = query.rs.getInt(4);
-                    String author_name = query.rs.getString(5);
+                PreparedStatement statement = conn.prepareStatement(sql_statement);
+                ResultSet resultSet = statement.executeQuery();
+                //ExecuteQuery query = new ExecuteQuery(sql_statement);
+                while (resultSet.next()) {
+                    long isbn = resultSet.getLong(1);
+                    String title = resultSet.getString(2);
+                    int unit_price = resultSet.getInt(3);
+                    int no_of_copies = resultSet.getInt(4);
+                    String author_name = resultSet.getString(5);
 
                     // Skip if the book is printed already
                     if (printed_isbn_list.contains(isbn)) continue;
@@ -124,7 +153,7 @@ class CustomerInterface extends Main {
 
                     current_isbn = isbn;
                 }
-                query.close();
+                statement.close();
             }
 
             if (printed_isbn_list.isEmpty()) System.out.println("No results found.");
@@ -171,7 +200,7 @@ class CustomerInterface extends Main {
         System.out.println(">> You can press 'L' to see ordered list, or 'F' to finish ordering.");
         // create list of isbn and quantity
         while (true) {
-            System.out.println("Please enter the book's ISBN:");
+            System.out.println("Please enter the book's ISBN(X-XXXX-XXXX-X):");
             String choice = scanner.next();
             if (choice.equals("L")) {
                 // print isbn and quantity
@@ -324,7 +353,7 @@ class CustomerInterface extends Main {
                 break;
             } else {
                 if (choice.length() != 13) {
-                    System.out.println("ISBN should have 13 digits.");
+                    System.out.println("ISBN should have 13 digits(X-XXXX-XXXX-X).");
                     continue;
                 }
                 boolean test = false;
