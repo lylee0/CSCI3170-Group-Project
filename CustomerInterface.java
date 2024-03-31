@@ -124,7 +124,6 @@ class CustomerInterface extends Main {
                 // @formatter:on
                 PreparedStatement statement = conn.prepareStatement(sql_statement);
                 ResultSet resultSet = statement.executeQuery();
-                //ExecuteQuery query = new ExecuteQuery(sql_statement);
                 while (resultSet.next()) {
                     long isbn = resultSet.getLong(1);
                     String title = resultSet.getString(2);
@@ -175,7 +174,6 @@ class CustomerInterface extends Main {
                 PreparedStatement statement = conn.prepareStatement(sql_statement);
                 statement.setString(1, customer_id);
                 ResultSet resultSet = statement.executeQuery();
-                //ExecuteQuery query = new ExecuteQuery(sql_statement);
                 while (resultSet.next()) {
                     id_check = resultSet.getString(1);
                 }
@@ -241,7 +239,6 @@ class CustomerInterface extends Main {
                     String sql_statement = "SELECT MAX(order_id) FROM orders";
                     PreparedStatement statement = conn.prepareStatement(sql_statement);
                     ResultSet resultSet = statement.executeQuery();
-                    //ExecuteQuery query = new ExecuteQuery(sql_statement);
                     while (resultSet.next()) {
                         order_id = resultSet.getLong(1);
                     }
@@ -270,7 +267,6 @@ class CustomerInterface extends Main {
                         PreparedStatement statement = conn.prepareStatement(sql_statement);
                         statement.setString(1, key);
                         ResultSet resultSet = statement.executeQuery();
-                        //ExecuteQuery query = new ExecuteQuery(sql_statement);
                         while (resultSet.next()) {
                             unit_price = resultSet.getLong(1);
                         }
@@ -288,7 +284,6 @@ class CustomerInterface extends Main {
                         PreparedStatement statement = conn.prepareStatement(sql_statement);
                         statement.setString(1, key);
                         ResultSet resultSet = statement.executeQuery();
-                        //ExecuteQuery query = new ExecuteQuery(sql_statement);
                         while (resultSet.next()) {
                             no_of_copies = resultSet.getLong(1);
                         }
@@ -305,7 +300,6 @@ class CustomerInterface extends Main {
                         statement.setString(2, key);
                         statement.executeUpdate();
                         statement.close();
-                        //ExecuteQuery query = new ExecuteQuery(sql_statement);
                     } catch (Exception e) {
                         System.err.println("Failed to query: " + e.getMessage());
                     }
@@ -325,8 +319,6 @@ class CustomerInterface extends Main {
                     statement.setString(5, customer_id);
                     statement.executeUpdate();
                     statement.close();
-                    //ExecuteQuery resultSet = statement.executeQuery();
-                    //ExecuteQuery query = new ExecuteQuery(sql_statement);
                 } catch (Exception e) {
                     System.err.println("Failed to query: " + e.getMessage());
                 }
@@ -343,7 +335,6 @@ class CustomerInterface extends Main {
                         statement.setLong(3, value);
                         statement.executeUpdate();
                         statement.close();
-                        //ExecuteQuery query = new ExecuteQuery(sql_statement);
                         } catch (Exception e) {
                             System.err.println("Failed to query: " + e.getMessage());
                         }
@@ -385,7 +376,6 @@ class CustomerInterface extends Main {
                     PreparedStatement statement = conn.prepareStatement(sql_statement);
                     statement.setString(1, isbn);
                     ResultSet resultSet = statement.executeQuery();
-                    //ExecuteQuery query = new ExecuteQuery(sql_statement);
                     while (resultSet.next()) {
                         isbn_check = resultSet.getLong(1);
                     }
@@ -488,7 +478,6 @@ class CustomerInterface extends Main {
                 PreparedStatement statement = conn.prepareStatement(sql_statement);
                 statement.setLong(1, order_id);
                 ResultSet resultSet = statement.executeQuery();
-                //ExecuteQuery query = new ExecuteQuery(sql_statement);
                 while (resultSet.next()) {
                     id_check = resultSet.getLong(1);
                     status = resultSet.getString(2);
@@ -522,7 +511,6 @@ class CustomerInterface extends Main {
             PreparedStatement statement = conn.prepareStatement(sql_statement);
             statement.setLong(1, order_id);
             ResultSet resultSet = statement.executeQuery();
-            //ExecuteQuery query = new ExecuteQuery(sql_statement);
             while (resultSet.next()) {
                 order_id = resultSet.getLong(1);
                 shipping_status = resultSet.getString(2);
@@ -547,7 +535,6 @@ class CustomerInterface extends Main {
             PreparedStatement statement = conn.prepareStatement(sql_statement);
             statement.setLong(1, order_id);
             ResultSet resultSet = statement.executeQuery();
-            //ExecuteQuery query = new ExecuteQuery(sql_statement);
             while (resultSet.next()) {
                 index += 1;
                 isbn = resultSet.getLong(1);
@@ -620,7 +607,6 @@ class CustomerInterface extends Main {
                 PreparedStatement statement = conn.prepareStatement(sql_statement);
                 statement.setLong(1, isbn);
                 ResultSet resultSet = statement.executeQuery();
-                //ExecuteQuery query = new ExecuteQuery(sql_statement);
                 while (resultSet.next()) {
                     copies = resultSet.getLong(1);
                     unit_price = resultSet.getLong(2);
@@ -696,10 +682,8 @@ class CustomerInterface extends Main {
             statement.setInt(1, o_date);
             statement.setLong(2, new_charge);
             statement.setLong(3, order_id);
-            //ResultSet resultSet = statement.executeQuery();
             statement.executeUpdate();
             statement.close();
-            //ExecuteQuery query = new ExecuteQuery(sql_statement);
         } catch (Exception e) {
             System.err.println("Failed to query: " + e.getMessage());
         }
@@ -711,7 +695,6 @@ class CustomerInterface extends Main {
             statement.setLong(2, order_id);
             statement.executeUpdate();
             statement.close();
-            //ExecuteQuery query = new ExecuteQuery(statement);
         } catch (Exception e) {
             System.err.println("Failed to query: " + e.getMessage());
         }
@@ -723,7 +706,6 @@ class CustomerInterface extends Main {
             statement.setLong(2, isbn);
             statement.executeUpdate();
             statement.close();
-            //ExecuteQuery query = new ExecuteQuery(statement);
         } catch (Exception e) {
             System.err.println("Failed to query: " + e.getMessage());
         }
@@ -751,10 +733,8 @@ class CustomerInterface extends Main {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Please Input Customer ID: ");
         String customer_id = scanner.nextLine();
-        //may define a function of checking customer id
         // handle wrong customer id
         while (true) { //!customer_id.isEmpty()
-            //ExecuteQuery query = new ExecuteQuery(sql_statement);
             String id_check = "";
             try {
                 String sql_statement = "SELECT c.customer_id FROM customer c WHERE c.customer_id = ?";
