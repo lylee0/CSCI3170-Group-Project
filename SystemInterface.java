@@ -31,58 +31,11 @@ class SystemInterface extends Main {
     /* Create all tables regardless of errors. */
     void create_table() {
         Map<String, String> table_definitions = new LinkedHashMap<>();
-        table_definitions.put("book", String.join("\n",
-                "CREATE TABLE book",
-                "(",
-                "    isbn         INTEGER,",
-                "    title        VARCHAR(100),",
-                "    unit_price   INTEGER,",
-                "    no_of_copies INTEGER,",
-                "    PRIMARY KEY (isbn)",
-                ")"
-        ));
-        table_definitions.put("customer", String.join("\n",
-                "CREATE TABLE customer",
-                "(",
-                "    customer_id      VARCHAR(10),",
-                "    name             VARCHAR(50),",
-                "    shipping_address VARCHAR(200),",
-                "    credit_card_no   INTEGER,",
-                "    PRIMARY KEY (customer_id)",
-                ")"
-        ));
-        table_definitions.put("orders", String.join("\n",
-                "CREATE TABLE orders",
-                "(",
-                "    order_id        INTEGER,",
-                "    o_date          INTEGER,",
-                "    shipping_status CHAR,",
-                "    charge          INTEGER,",
-                "    customer_id     VARCHAR(10),",
-                "    PRIMARY KEY (order_id),",
-                "    FOREIGN KEY (customer_id) REFERENCES customer",
-                ")"
-        ));
-        table_definitions.put("ordering", String.join("\n",
-                "CREATE TABLE ordering",
-                "(",
-                "    order_id INTEGER,",
-                "    isbn     INTEGER,",
-                "    quantity INTEGER,",
-                "    PRIMARY KEY (order_id, isbn),",
-                "    FOREIGN KEY (order_id) REFERENCES orders,",
-                "    FOREIGN KEY (isbn) REFERENCES book",
-                ")"
-        ));
-        table_definitions.put("book_author", String.join("\n",
-                "CREATE TABLE book_author",
-                "(",
-                "    isbn        INTEGER,",
-                "    author_name VARCHAR(50),",
-                "    PRIMARY KEY (isbn, author_name),",
-                "    FOREIGN KEY (isbn) REFERENCES book",
-                ")"
-        ));
+        table_definitions.put("book", String.join("\n", "CREATE TABLE book", "(", "    isbn         INTEGER,", "    title        VARCHAR(100),", "    unit_price   INTEGER,", "    no_of_copies INTEGER,", "    PRIMARY KEY (isbn)", ")"));
+        table_definitions.put("customer", String.join("\n", "CREATE TABLE customer", "(", "    customer_id      VARCHAR(10),", "    name             VARCHAR(50),", "    shipping_address VARCHAR(200),", "    credit_card_no   INTEGER,", "    PRIMARY KEY (customer_id)", ")"));
+        table_definitions.put("orders", String.join("\n", "CREATE TABLE orders", "(", "    order_id        INTEGER,", "    o_date          INTEGER,", "    shipping_status CHAR,", "    charge          INTEGER,", "    customer_id     VARCHAR(10),", "    PRIMARY KEY (order_id),", "    FOREIGN KEY (customer_id) REFERENCES customer", ")"));
+        table_definitions.put("ordering", String.join("\n", "CREATE TABLE ordering", "(", "    order_id INTEGER,", "    isbn     INTEGER,", "    quantity INTEGER,", "    PRIMARY KEY (order_id, isbn),", "    FOREIGN KEY (order_id) REFERENCES orders,", "    FOREIGN KEY (isbn) REFERENCES book", ")"));
+        table_definitions.put("book_author", String.join("\n", "CREATE TABLE book_author", "(", "    isbn        INTEGER,", "    author_name VARCHAR(50),", "    PRIMARY KEY (isbn, author_name),", "    FOREIGN KEY (isbn) REFERENCES book", ")"));
 
         table_definitions.forEach((table_name, table_definition) -> {
             if (execute_update(table_definition)) System.out.printf("Table '%s' has been created.\n", table_name);
@@ -175,11 +128,11 @@ class SystemInterface extends Main {
     }
 
     void set_system_date() {
-        String latest_order_date = "";
+        String latest_order_date;
         int latest_year = 0;
         int latest_month = 0;
         int latest_day = 0;
-        int latest_order_date_int = 0;
+        int latest_order_date_int;
         // Get latest date in orders
         try {
             ExecuteQuery query = new ExecuteQuery("SELECT MAX(o_date) FROM orders");
@@ -192,23 +145,26 @@ class SystemInterface extends Main {
             latest_order_date_int = Integer.parseInt(latest_order_date);
             // Print the date only if query is successful
         } catch (Exception e) {
-            latest_order_date = "00000000";
-            latest_order_date_int = Integer.parseInt(latest_order_date);
+            latest_order_date_int = 0;
             //System.err.println("Failed to get latest order date: " + e.getMessage());
         }
 
         System.out.print("Please input the date (YYYYMMDD): ");
 
         Scanner scanner = new Scanner(System.in);
-        
-        String input = "";
+
+        String input;
         while (true) {
             input = scanner.nextLine();
             try {
+                if (input.length() != 8) {
+                    throw new Exception("Expected input length is 8.");
+                }
+
                 int year = Integer.parseInt(input.substring(0, 4));
                 int month = Integer.parseInt(input.substring(4, 6));
                 int day = Integer.parseInt(input.substring(6));
-                if ((year < latest_year) || ((year == latest_year) && (month < latest_month)) || ((year == latest_year) && (month == latest_month) && (day < latest_day))){
+                if ((year < latest_year) || ((year == latest_year) && (month < latest_month)) || ((year == latest_year) && (month == latest_month) && (day < latest_day))) {
                     System.out.println("Latest date in orders: " + date_int_to_str(latest_order_date_int));
                     System.out.print("Invalid input. Please try again: ");
                     continue;
@@ -218,7 +174,6 @@ class SystemInterface extends Main {
                 break;
             } catch (Exception e) {
                 System.out.print("Invalid input. Please try again: ");
-                continue;
             }
         }
         System.out.println("Latest date in orders: " + date_int_to_str(latest_order_date_int));
