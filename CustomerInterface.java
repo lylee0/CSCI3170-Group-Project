@@ -389,29 +389,24 @@ class CustomerInterface extends Main {
                 //if the book is out of stock, get another input
                 if (no_of_copies == 0) {
                     System.out.println("The book is out of stock. Please choose another book.");
-                    //System.out.println("Please enter the book's ISBN:");
-                    //choice = scanner.next();
                     continue;
                 } else {
                     // get quantity
                     long quantity = 0;
-                    boolean validInput = false;
-                    while (!validInput){
+                    while (true){
                         try{
                             System.out.println("Please enter the quantity of the order: ");
                             quantity = scanner.nextLong();
-                            validInput = true;
+                            if (no_of_copies < quantity){ //check if copies are enough
+                                System.out.printf("You have already ordered %d copies.%n", quantity);
+                                System.out.printf("There are only in total %d copies. %n", no_of_copies);
+                                continue;
+                            }
+                            break;
                         } catch(InputMismatchException e){
                             System.out.println("Invalid Input.");
                             scanner.nextLine();
                         }
-                    }
-
-                    while (no_of_copies < quantity) { //check if copies are enough
-                        System.out.printf("You have already ordered %d copies.%n", quantity);
-                        System.out.printf("There are only in total %d copies. %n", no_of_copies);
-                        System.out.println("Please enter the quantity of the order again: ");
-                        quantity = scanner.nextLong();
                     }
                     //gather same book
                     if (isbn_quantity.containsKey(isbn)) {
@@ -422,9 +417,6 @@ class CustomerInterface extends Main {
                 }
 
             }
-            //System.out.println("Please enter the book's ISBN:");
-            //choice = scanner.next();
-            //System.out.println(choice);
         }
     }
 
@@ -618,6 +610,10 @@ class CustomerInterface extends Main {
                 if (copies < quan_alter) {
                     //not enough copies
                     System.out.printf("There are only %d copies available%n", copies);
+                    if (copies == 0){
+                        System.out.printf("Order altering fails.");
+                        return;
+                    }
                     System.out.println("Please enter the number of copies to be added again: ");
                 } else {
                     //change stock, minus copies - quan_alter
@@ -753,10 +749,11 @@ class CustomerInterface extends Main {
             }
         }
         System.out.print("Please Input the Year: ");
-        String year_str = scanner.nextLine();
+        String year_str = "";
         int year = 0;
         while (true) { //!year_str.isEmpty()
             //check if it is year
+            year_str = scanner.nextLine();
             try {
                 year = Integer.parseInt(year_str);
                 if ((year <= system_year) && (year >= 0)) {
@@ -769,7 +766,7 @@ class CustomerInterface extends Main {
                 System.out.println("Invalid year.");
                 System.out.println("Please Input the Year again: ");
             }
-            year_str = scanner.nextLine();
+            //year_str = scanner.nextLine();
         }
 
         //sort order_id
