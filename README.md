@@ -1,11 +1,20 @@
-# CSCI3170-Group-Project
+# CSCI3170 Group Project
 ## Book Ordering System
 
+### Environment Setup
+- Host machine: CSE linux1
+
+### Compilation
 ```shell
-javac -cp ".:./ojdbc7.jar" *.java && java -cp ".:./ojdbc7.jar" Main
+javac -cp ".:./ojdbc7.jar" *.java
 ```
 
-Checklist:
+### Deployment
+```shell
+java -cp ".:./ojdbc7.jar" Main
+```
+
+### Checklist
 - [ ] Main menu
     - [x] System interface
         - [x] Create table
