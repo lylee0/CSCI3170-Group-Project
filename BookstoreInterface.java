@@ -72,7 +72,7 @@ class BookstoreInterface extends Main {
                 } else if (status.equals("N")) {
                     test = true;
 
-                    int quantity = 0;
+                    int quantity;
                     try {
                         String sql_statement = "SELECT o.order_id, o.quantity FROM ordering o WHERE o.order_id = ?";
                         PreparedStatement statement = conn.prepareStatement(sql_statement);
@@ -90,7 +90,7 @@ class BookstoreInterface extends Main {
                     } catch (Exception e) {
                         System.err.println("Failed to query: " + e.getMessage());
                     }
-                    
+
                     if (test) {
                         System.out.println("The order contains no book with quantity greater than or equal to 1.");
                         System.out.println("Please enter another OrderID or press E to cancel updates: ");
@@ -127,7 +127,7 @@ class BookstoreInterface extends Main {
                 }
                 System.out.println("Updated shipping status");
                 return;
-            } 
+            }
             System.out.println("Please enter Y to update the shipping status or E to cancel update: ");
         }
     }
@@ -183,7 +183,7 @@ class BookstoreInterface extends Main {
                         break;
                     }
                 } else {
-                    if (month_flag == false) {
+                    if (!month_flag) {
                         if (!(input.charAt(i) >= '1' && input.charAt(i) <= '9')) {
                             test = true;
                             break;
@@ -214,10 +214,10 @@ class BookstoreInterface extends Main {
             }
             break;
         }
-        
+
         //sort order_id
         int index = 0;
-        int total_charge = 0;
+        long total_charge = 0;
         try {
             String sql_statement = "SELECT ORDER_ID, CUSTOMER_ID, O_DATE, CHARGE, SHIPPING_STATUS FROM ORDERS WHERE SHIPPING_STATUS = 'Y' ORDER BY ORDER_ID";
             PreparedStatement statement = conn.prepareStatement(sql_statement);
@@ -291,10 +291,10 @@ class BookstoreInterface extends Main {
                 long isbn = resultSet.getLong(1);
                 String title = resultSet.getString(2);
                 long sum_quantity = resultSet.getLong(3);
-                
+
                 String isbn_str = isbn_long_to_str(isbn);
 
-                if ((index <= n) || (sum_quantity >= min_quantity)){
+                if ((index <= n) || (sum_quantity >= min_quantity)) {
                     System.out.printf("%s   %s   %d%n", isbn_str, title, sum_quantity);
                     min_quantity = sum_quantity;
                 }
