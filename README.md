@@ -10,7 +10,7 @@
 - Host machine: CSE linux1
 
 ### Path Setting
-- Please put all the source codes and the driver (ojdbc7.jar) in the sane directory
+- Please put all the source codes and the driver (ojdbc7.jar) in the same directory
 - cd "path of the source file"
 - For example:
 ```shell
