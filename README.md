@@ -13,7 +13,7 @@
 - cd "path of the source file"
 - For example:
 ```shell
-./CSCI3170-Group-Project
+cd ./CSCI3170-Group-Project
 ```
 
 ### Compilation
