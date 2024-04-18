@@ -102,8 +102,8 @@ class CustomerInterface extends Main {
 
         // Print query result
         try {
-            List<Long> printed_isbn_list = new ArrayList<>();
-            long current_isbn = -1;
+            Set<Long> printed_isbn_set = new HashSet<>();
+            long previous_isbn = -1;
             int author_count = -1;
 
             // Exact matches go first
@@ -128,16 +128,16 @@ class CustomerInterface extends Main {
                     String author_name = resultSet.getString(5);
 
                     // Skip if the book is printed already
-                    if (printed_isbn_list.contains(isbn)) continue;
+                    if (printed_isbn_set.contains(isbn)) continue;
 
-                    if (isbn == current_isbn) {
+                    if (isbn == previous_isbn) {
                         // Print the remaining authors of the book that is currently printing
                         author_count++;
                     } else {
-                        printed_isbn_list.add(current_isbn);  // Record the ISBN of the book that has just been printed
+                        printed_isbn_set.add(previous_isbn);  // Record the ISBN of the book that has just been printed
                         author_count = 1;
 
-                        System.out.printf("\nRecord %d\n", printed_isbn_list.size());
+                        System.out.printf("\nRecord %d\n", printed_isbn_set.size());
                         System.out.println("ISBN: " + isbn_long_to_str(isbn));
                         System.out.println("Book title: " + title);
                         System.out.printf("Unit price: %d\n", unit_price);
@@ -146,12 +146,13 @@ class CustomerInterface extends Main {
                     }
                     System.out.printf("%d: %s\n", author_count, author_name);
 
-                    current_isbn = isbn;
+                    previous_isbn = isbn;
                 }
+                printed_isbn_set.add(previous_isbn);  // Fix the "duplicate author" bug when there is only one result
                 statement.close();
             }
 
-            if (printed_isbn_list.isEmpty()) System.out.println("No results found.");
+            if (printed_isbn_set.isEmpty()) System.out.println("No results found.");
         } catch (Exception e) {
             System.err.println("Failed to query: " + e.getMessage());
         }
