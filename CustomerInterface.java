@@ -505,7 +505,7 @@ class CustomerInterface extends Main {
         int charge = 0;
         String customer_id = "";
         try {
-            String sql_statement = "SELECT o.order_id, o.shipping_status, o.charge, o.customer_id FROM orders o WHERE o.order_id = ?"; // not sure
+            String sql_statement = "SELECT o.order_id, o.shipping_status, o.charge, o.customer_id FROM orders o WHERE o.order_id = ?";
             PreparedStatement statement = conn.prepareStatement(sql_statement);
             statement.setLong(1, order_id);
             ResultSet resultSet = statement.executeQuery();
@@ -522,7 +522,7 @@ class CustomerInterface extends Main {
         //find ordering
         //get list of books ordered
         Map<Integer, List<Long>> book_dict = new LinkedHashMap<>();
-        List<Long> book_ordered = new ArrayList<>();
+        
         int index = 0;
         long isbn = 0;
         long quantity;
@@ -535,7 +535,7 @@ class CustomerInterface extends Main {
                 index += 1;
                 isbn = resultSet.getLong(1);
                 quantity = resultSet.getLong(2);
-                book_ordered.clear();
+                List<Long> book_ordered = new ArrayList<>();
                 book_ordered.add(isbn);
                 book_ordered.add(quantity);
                 book_dict.put(index, book_ordered);
@@ -591,6 +591,8 @@ class CustomerInterface extends Main {
                     scanner.next();
                 }
             }
+            book = book_dict.get(book_alter);
+            isbn = book.get(0);
             try {
                 String sql_statement = "SELECT b.no_of_copies, b.unit_price FROM book b WHERE b.isbn = ?";
                 PreparedStatement statement = conn.prepareStatement(sql_statement);
@@ -646,21 +648,16 @@ class CustomerInterface extends Main {
             }
         }
 
-        book_ordered.clear();
+        List<Long> book_ordered = new ArrayList<>();
         book_ordered.add(isbn);
         book_ordered.add(new_quantity);
         book_dict.put(book_alter, book_ordered);
 
         //change stock, order, ordering, charge, date
         long new_charge = 0;
-        if (quantity != 0) {
-            new_charge = charge - (unit_price + 10) * quantity - 10;
-        }
-        new_charge = new_charge + (unit_price + 10) * new_quantity + 10;
+        new_charge = charge - (unit_price + 10) * quantity;
+        new_charge = new_charge + (unit_price + 10) * new_quantity;
         int o_date = system_date.value;
-        if (new_quantity == 0) {
-            new_charge = 0;
-        }
 
         try {
             String sql_statement = "UPDATE orders SET o_date = ?, charge = ? WHERE order_id = ?";
@@ -674,10 +671,10 @@ class CustomerInterface extends Main {
             System.err.println("Failed to query: " + e.getMessage());
         }
         try {
-            String sql_statement = "UPDATE ordering SET quantity = ? WHERE order_id = ?";
+            String sql_statement = "UPDATE ordering SET quantity = ? WHERE isbn = ?";
             PreparedStatement statement = conn.prepareStatement(sql_statement);
             statement.setLong(1, new_quantity);
-            statement.setLong(2, order_id);
+            statement.setLong(2, isbn);
             statement.executeUpdate();
             statement.close();
         } catch (Exception e) {
