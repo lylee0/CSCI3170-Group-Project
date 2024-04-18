@@ -102,16 +102,19 @@ class CustomerInterface extends Main {
 
         // Print query result
         try {
-            List<String> where_stmt_list = new ArrayList<>();
-            where_stmt_list.add(where_stmt_exact_match);  // Exact matches go first
-            where_stmt_list.add(where_stmt_general);
+            List<String> where_stmt_list = Arrays.asList(
+                    where_stmt_exact_match,  // Exact matches go first
+                    where_stmt_general
+            );
             while (!where_stmt_list.isEmpty()) {
                 /* The beginning of the "try block" before fixing the bug in querying by author_name */
                 Set<Long> printed_isbn_set = new HashSet<>();
                 long previous_isbn = -1;
                 int author_count = -1;
 
-                for (String where_stmt : new ArrayList<>(where_stmt_list)) {  // Iterate over a cloned list
+                List<String> where_stmt_list_ = where_stmt_list;
+                where_stmt_list = new ArrayList<>();
+                for (String where_stmt : where_stmt_list_) {  // Iterate over a cloned list
                     if (where_stmt == null) continue;
 
                     // Construct the complete SQL statement
@@ -162,10 +165,8 @@ class CustomerInterface extends Main {
                     statement.close();
                 }
 
-                if (printed_isbn_set.size() == 1) System.out.println("No results found.");
+                if (printed_isbn_set.size() == 1 && where_stmt_list.isEmpty()) System.out.println("No results found.");
                 /* The end of the "try block" before fixing the bug in querying by author_name */
-
-                where_stmt_list.subList(0, 2).clear();
             }
         } catch (Exception e) {
             System.err.println("Failed to query: " + e.getMessage());
