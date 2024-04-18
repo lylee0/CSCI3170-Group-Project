@@ -330,6 +330,7 @@ class CustomerInterface extends Main {
                     }
                 }
                 isbn_quantity.clear();
+                System.out.printf("Your Order ID is %08d%n", order_id);
                 System.out.println("Ordering Finished!");
                 break;
             } else {
