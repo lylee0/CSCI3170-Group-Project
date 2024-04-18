@@ -223,7 +223,6 @@ class BookstoreInterface extends Main {
             PreparedStatement statement = conn.prepareStatement(sql_statement);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                index++;
                 long order_id = resultSet.getLong(1);
                 String customer_id = resultSet.getString(2);
                 int o_date = resultSet.getInt(3);
@@ -234,6 +233,7 @@ class BookstoreInterface extends Main {
                 int order_month = Integer.parseInt(date.substring(5, 7));
 
                 if ((order_year == year) && (order_month == month)) {
+                    index++;
                     total_charge += charge;
                     System.out.printf("Record : %d%n", index);
                     System.out.printf("order_id : %08d%n", order_id); //set 8 digits
