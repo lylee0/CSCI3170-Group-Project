@@ -78,7 +78,7 @@ class CustomerInterface extends Main {
             where_stmt_general = String.format("WHERE (b.isbn = ba.isbn) and (title LIKE '%s')", title);
 
             // Construct query statement for exact match
-            if (title.substring(1, title.length() - 1).indexOf('%') == -1) {
+            if (title.length() > 1 && title.substring(1, title.length() - 1).indexOf('%') == -1) {
                 // '%' does not exist in the middle of the input
                 title = title.replace("%", "");
                 where_stmt_exact_match = String.format("WHERE (b.isbn = ba.isbn) and (title LIKE '%s')", title);
@@ -93,7 +93,7 @@ class CustomerInterface extends Main {
             where_stmt_general = String.format("WHERE (b.isbn = ba.isbn) and (author_name LIKE '%s')", author_name);
 
             // Construct query statement for exact match
-            if (author_name.substring(1, author_name.length() - 1).indexOf('%') == -1) {
+            if (author_name.length() > 1 && author_name.substring(1, author_name.length() - 1).indexOf('%') == -1) {
                 // '%' does not exist in the middle of the input
                 author_name = author_name.replace("%", "");
                 where_stmt_exact_match = String.format("WHERE (b.isbn = ba.isbn) and (author_name LIKE '%s')", author_name);
@@ -102,57 +102,71 @@ class CustomerInterface extends Main {
 
         // Print query result
         try {
-            Set<Long> printed_isbn_set = new HashSet<>();
-            long previous_isbn = -1;
-            int author_count = -1;
+            List<String> where_stmt_list = new ArrayList<>();
+            where_stmt_list.add(where_stmt_exact_match);  // Exact matches go first
+            where_stmt_list.add(where_stmt_general);
+            while (!where_stmt_list.isEmpty()) {
+                /* The beginning of the "try block" before fixing the bug in querying by author_name */
+                Set<Long> printed_isbn_set = new HashSet<>();
+                long previous_isbn = -1;
+                int author_count = -1;
 
-            // Exact matches go first
-            for (String where_stmt : new String[]{where_stmt_exact_match, where_stmt_general}) {
-                if (where_stmt == null) continue;
+                for (String where_stmt : new ArrayList<>(where_stmt_list)) {  // Iterate over a cloned list
+                    if (where_stmt == null) continue;
 
-                // Construct the complete SQL statement
-                // @formatter:off
-                String sql_statement = String.join(" ",
-                        "SELECT b.isbn, title, unit_price, no_of_copies, author_name",
-                        "FROM book b, book_author ba",
-                        where_stmt,
-                        "ORDER BY title, b.isbn, author_name");
-                // @formatter:on
-                PreparedStatement statement = conn.prepareStatement(sql_statement);
-                ResultSet resultSet = statement.executeQuery();
-                while (resultSet.next()) {
-                    long isbn = resultSet.getLong(1);
-                    String title = resultSet.getString(2);
-                    int unit_price = resultSet.getInt(3);
-                    int no_of_copies = resultSet.getInt(4);
-                    String author_name = resultSet.getString(5);
+                    // Construct the complete SQL statement
+                    // @formatter:off
+                    String sql_statement = String.join(" ",
+                            "SELECT b.isbn, title, unit_price, no_of_copies, author_name",
+                            "FROM book b, book_author ba",
+                            where_stmt,
+                            "ORDER BY title, b.isbn, author_name");
+                    // @formatter:on
+                    PreparedStatement statement = conn.prepareStatement(sql_statement);
+                    ResultSet resultSet = statement.executeQuery();
+                    while (resultSet.next()) {
+                        long isbn = resultSet.getLong(1);
+                        String title = resultSet.getString(2);
+                        int unit_price = resultSet.getInt(3);
+                        int no_of_copies = resultSet.getInt(4);
+                        String author_name = resultSet.getString(5);
 
-                    // Skip if the book is printed already
-                    if (printed_isbn_set.contains(isbn)) continue;
+                        // Deal with the bug in querying by author_name
+                        if (where_stmt.contains("author_name")) {
+                            where_stmt_list.add(String.format("WHERE (b.isbn = ba.isbn) and (b.isbn = %s)", isbn));
+                            continue;
+                        }
 
-                    if (isbn == previous_isbn) {
-                        // Print the remaining authors of the book that is currently printing
-                        author_count++;
-                    } else {
-                        printed_isbn_set.add(previous_isbn);  // Record the ISBN of the book that has just been printed
-                        author_count = 1;
+                        // Skip if the book is printed already
+                        if (printed_isbn_set.contains(isbn)) continue;
 
-                        System.out.printf("\nRecord %d\n", printed_isbn_set.size());
-                        System.out.println("ISBN: " + isbn_long_to_str(isbn));
-                        System.out.println("Book title: " + title);
-                        System.out.printf("Unit price: %d\n", unit_price);
-                        System.out.printf("No. of available: %d\n", no_of_copies);
-                        System.out.println("Authors:");
+                        if (isbn == previous_isbn) {
+                            // Print the remaining authors of the book that is currently printing
+                            author_count++;
+                        } else {
+                            printed_isbn_set.add(previous_isbn);  // Record the ISBN of the book that has just been printed
+                            author_count = 1;
+
+                            System.out.printf("\nRecord %d\n", printed_isbn_set.size());
+                            System.out.println("ISBN: " + isbn_long_to_str(isbn));
+                            System.out.println("Book title: " + title);
+                            System.out.printf("Unit price: %d\n", unit_price);
+                            System.out.printf("No. of available: %d\n", no_of_copies);
+                            System.out.println("Authors:");
+                        }
+                        System.out.printf("%d: %s\n", author_count, author_name);
+
+                        previous_isbn = isbn;
                     }
-                    System.out.printf("%d: %s\n", author_count, author_name);
-
-                    previous_isbn = isbn;
+                    printed_isbn_set.add(previous_isbn);  // Fix the "duplicate author" bug when there is only one result
+                    statement.close();
                 }
-                printed_isbn_set.add(previous_isbn);  // Fix the "duplicate author" bug when there is only one result
-                statement.close();
-            }
 
-            if (printed_isbn_set.isEmpty()) System.out.println("No results found.");
+                if (printed_isbn_set.size() == 1) System.out.println("No results found.");
+                /* The end of the "try block" before fixing the bug in querying by author_name */
+
+                where_stmt_list.subList(0, 2).clear();
+            }
         } catch (Exception e) {
             System.err.println("Failed to query: " + e.getMessage());
         }
