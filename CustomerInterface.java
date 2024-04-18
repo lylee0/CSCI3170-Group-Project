@@ -704,7 +704,7 @@ class CustomerInterface extends Main {
             isbn = value.get(0);
             String isbn_str = isbn_long_to_str(isbn);
             quantity = value.get(1);
-            System.out.printf("book no: %d ISBN = %s quantity = %d", key, isbn_str, quantity);
+            System.out.printf("book no: %d ISBN = %s quantity = %d%n", key, isbn_str, quantity);
         }
 
     }
