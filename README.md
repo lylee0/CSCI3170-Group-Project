@@ -26,3 +26,12 @@ javac -cp ".:./ojdbc7.jar" *.java
 ```shell
 java -cp ".:./ojdbc7.jar" Main
 ```
+
+### Division of Work
+- HUI Wang Chi
+  - `Main.java`
+  - `SystemInterface.java`
+- LEE Lai Yan
+  - `CustomerInterface.java`
+- CHENG Chi Yin
+  - `BookstoreInterface.java`
