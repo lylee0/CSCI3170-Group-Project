@@ -637,7 +637,7 @@ class CustomerInterface extends Main {
                     System.out.println("Order altering fails.");
                     return;
                 } else if (quantity < quan_alter) {
-                    System.out.printf("You have only order %d copies.%n", quantity);
+                    System.out.printf("You have only ordered %d copies.%n", quantity);
                     System.out.println("Please enter the number of copies to be removed again: ");
                 } else {
                     //change stock, copies + quan_alter
